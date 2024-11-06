@@ -7,5 +7,4 @@ public interface Controllable {
 	void right();
 	void primaryButton();
 	void secondaryButton();
-	void menuButton();
 }
