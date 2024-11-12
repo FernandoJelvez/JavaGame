@@ -1,25 +1,18 @@
 package io.github.game;
 import io.github.engine.Display;
+import io.github.engine.Physics;
 import io.github.engine.UpdateManager;
+
+import java.awt.*;
 
 public class Main {
 	public static void main(String[] args) {
-		/*JFrame frame = new JFrame("demo");
-		frame.setLayout(null);
-		JPanel panel= new JPanel();
-		frame.setSize(800,600);
-		panel.setSize(10,10);
-		panel.setBackground(Color.BLACK);
-		frame.add(panel);
-		frame.setVisible(true);
-		panel.setVisible(true);
-		frame.update(frame.getGraphics());*/
-
-		Display display = new Display("game",800,600);
+		Display.setup("game",800,600);
+		Display.start();
+		Player player = new Player(10,10,10,10,"player");
+		player.setBackground(Color.BLACK);
+		Display.addToBuffer(player);
 		UpdateManager.startClock();
-		display.start();
-		display.addToBuffer(new Player(10,10,10,10,"player"));
-		display.update();
 
 		/*para comprobar que una entidad está colisionando, se usa el "Y" maximo y el "Y" minimo, si
 		el y maximo menor que el y maximo del objeto que esta debajo, entonces se estan intersecctando.

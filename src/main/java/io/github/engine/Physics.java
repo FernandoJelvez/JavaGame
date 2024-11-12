@@ -3,7 +3,7 @@ package io.github.engine;
 /**
  *Management of the interactions between game entities and their surroundings
  */
-public class Physics {
+public final class Physics {
     private static int globalGravity; /*global gravity, the gravity that objects follow by default,
 								 if not set otherwise by the entity*/
 
@@ -24,7 +24,7 @@ public class Physics {
 	 * @param entity The Entity upon which gravity is applied
 	 */
 	public static void applyGravity(Entity entity){
-		entity.setySpeed(entity.getySpeed()-globalGravity *entity.getAirTime());
+		entity.setySpeed((int) (entity.getySpeed()+globalGravity *entity.getAirTime()));
 		entity.updatePosition();
 	}
 
