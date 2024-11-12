@@ -3,13 +3,11 @@ package io.github.game;
 import io.github.engine.AbstractTile;
 import io.github.engine.Controllable;
 import io.github.engine.Entity;
-import io.github.engine.Physics;
 
 public class Player extends Entity implements Controllable {
 	//jump force affects how much the player will jump, by multiplying the base jump speed
 	int jumpForce=1;
 	//physics is the physics engined being used by the player,
-	Physics physics;
 
 	public Player(int xPos, int yPos, AbstractTile tile, String id){
 		super(xPos,yPos,tile,id);
