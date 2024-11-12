@@ -1,7 +1,7 @@
 package io.github.engine;
 
 public abstract class Entity extends AbstractTile {
-	private int airTime;
+	private long airTime;
 	private int xSpeed,ySpeed = 0;
 	private int gravity;//the gravity the entity uses if it doesn't use the global gravity
 	private boolean globalGravity; //signals if the entity uses the default gravity(true) or its own(false)
@@ -34,11 +34,16 @@ public abstract class Entity extends AbstractTile {
 	public void setySpeed(int ySpeed){
 		this.ySpeed=ySpeed;
 	}
-	public int getAirTime(){
+	public long getAirTime(){
 		return airTime;
 	}
 	public void updatePosition(){
-		super.setLocation(super.getX(),super.getY()-ySpeed*airTime);
-		airTime++;
+		System.out.println("Y"+super.getY());
+		System.out.println("Speed*air time"+(ySpeed*airTime));
+		System.out.println("nuevo Y ideal "+(super.getY()+ySpeed*airTime));
+		super.setLocation(super.getX(), (int) (super.getY()+ySpeed*airTime));
+		airTime+=UpdateManager.getDeltaTime();
+
+		System.out.println("air time "+airTime);
 	}
 }
