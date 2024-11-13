@@ -25,7 +25,7 @@ public final class UpdateManager implements Runnable {
 	public void run() {
 		while(true){
 			Instant initialTime=Instant.now();
-			Display.refresh();
+			DisplayLegacy1.refresh();
 			Instant finalTime = Instant.now();
 			deltaTime=Duration.between(initialTime,finalTime).toMillis();
 			while(deltaTime<1){
@@ -36,9 +36,4 @@ public final class UpdateManager implements Runnable {
 			System.out.println(deltaTime);
 		}
 	}
-	/*
-	public void refresh(){
-		Display.refresh();
-	}
-	*/
 }
