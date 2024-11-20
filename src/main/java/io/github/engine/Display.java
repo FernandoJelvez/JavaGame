@@ -1,76 +1,75 @@
 package io.github.engine;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.ArrayList;
+import javax.swing.JFrame;
+import javax.swing.WindowConstants;
+import java.util.HashMap;
 
-public final class Display{
-    /* Display.frame is the window in wich everything happens, this class only uses a couple of methods,
-    because of that, inheritance from Display.frame is not necesary */
+/**
+ * This class is in charge of rendering the objects in the window,
+ * storing said objects and calling their refresh methods.
+ * @apiNote This class contains only static methods as it meant for the Display to be unique. This class
+ * was not designed for inheritance
+ */
+public final class Display {
     private static JFrame frame;
-    //the buffer keeps the record of the tiles added to the Display, but not added to Display.frame yet
-    private static ArrayList<AbstractTile> buffer=new ArrayList<>();
-    //activeTiles exist to keep the record of some features of AbrstractTile, like the layer
-    private static ArrayList<AbstractTile> activeTiles=new ArrayList<>();
-    private static int width;
-    private static int height;
-    private static String name;
-    //bufferChanged flag: indicates things have been added to the buffer since the last refresh
+    private static HashMap<String,AbstractTile> buffer=new HashMap<>();
+    private static HashMap<String, AbstractTile> tiles =new HashMap<>();
     private static boolean bufferChanged;
 
+    /**
+     * This method sets the value of the variables of this class, in this case, it sets the
+     * characteristics of the window
+     * @param name the name of the window
+     * @param width the width of the window
+     * @param height the height of the window
+     */
     public static void setup(String name,int width, int height){
-        Display.height=height;
-        Display.width=width;
-        Display.name=name;
-    }
-    
-    public static void start(){
-        System.out.println(name+" "+width+" "+height);
-        Display.frame = new JFrame(name);
-        System.out.println(frame.getBounds());
-        Display.frame.setSize(width,height);
-        Display.frame.setVisible(true);
-        Display.frame.setLayout(null);
-        Display.frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        System.out.println("good");
-    }
-    public static void addToBuffer(AbstractTile tile){
-        buffer.add(tile);
-        bufferChanged=true;
+        frame = new JFrame(name);
+        frame.setSize(width,height);
     }
 
     /**
-     * Erases all active tiles from the ActiveTiles ArrayList and clears the all
-     * components from the JFrame, essentially wiping out all the display data about Tiles.
+     * Starts the window, making it visible and setting some of the Display's inner JFrame configurations
+     * that allow the objects to display correctly
      */
-    public static void clearDisplay(){
-        for (Component component:Display.frame.getComponents()) {
-            Display.frame.remove(component);
-        }
+    public static void start(){
+        Display.frame.setVisible(true);
+        Display.frame.setLayout(null);
+        Display.frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
-    public static void wipeDisplayData(){
-        activeTiles.clear();
-        clearDisplay();
+
+    /**
+     * Adds an AbstractTile inheriting object to the buffer and sets the {@code bufferChanged} flag
+     * @param tile the object belonging to a class inheriting from AbstractTile, which will be added later to the window
+     * @param id the id of the tile, used to retrieve it from the Display if its parameters need to be changed
+     */
+    public static void addToBuffer(AbstractTile tile,String id){
+        buffer.put(id,tile);
+        bufferChanged=true;
     }
+
     public static void refresh(){
-        if(bufferChanged) {
-            for (AbstractTile tile:buffer) {
-                activeTiles.add(tile);
-            }
-            bufferChanged=false;
+        if (bufferChanged){
+            buffer.entrySet().stream().sorted()
+                    .filter((e)->!tiles.containsKey(e.getKey()))
+                    .forEach((e)->{
+                        tiles.put(e.getKey(),e.getValue()); e.getValue().setVisible(true);frame.add(e.getValue());});
+            buffer.clear();
         }
-        clearDisplay();
-        for (int layer = 0; layer < 10; layer++) {
-            for (AbstractTile tile:activeTiles) {
-                if(tile.getLayer()==layer){
-                    if(tile.getClass().getSuperclass()==Entity.class){
-                        ((Entity)tile).updatePosition();
-                    }
-                    Display.frame.add(tile);
-                    tile.setVisible(true);
-                }
-            }
-        }
-        Display.frame.update(Display.frame.getGraphics());
+        tiles.values().stream()
+                .filter(Entity.class::isInstance)
+                .forEach((e)->{Physics.applyGravity((Entity)e);((Entity)e).refresh();});
+        frame.repaint();
+        bufferChanged=false;
+    }
+
+    public static double getHeigth(){
+        return frame.getSize().getHeight();
+    }
+    public static HashMap<String,AbstractTile> retrieveTiles(){
+        return tiles;
+    }
+    public static AbstractTile retrieveTile(String id){
+        return tiles.get(id);
     }
 }
