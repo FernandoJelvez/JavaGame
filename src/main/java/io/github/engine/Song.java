@@ -4,7 +4,7 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
 import java.io.File;
 
-class Audio {
+class Song {
 
     //VOLUMENES PERMITIDOS
     //MAXIMO: 6.0 dB
@@ -15,16 +15,16 @@ class Audio {
     private Clip clip = null;
     private boolean isLoop = false;
 
-    public Audio(String rutaArchivo) {
+    public Song(String rutaArchivo) {
         File archivo = new File(rutaArchivo);
         clip = instanciarClip(clip, archivo);
     }
 
-    public Audio(File archivo) {
+    public Song(File archivo) {
         clip = instanciarClip(clip, archivo);
     }
 
-    public Audio(File archivo, float volumen) {
+    public Song(File archivo, float volumen) {
         clip = instanciarClip(clip, archivo);
         setVolumen(volumen);
     }
