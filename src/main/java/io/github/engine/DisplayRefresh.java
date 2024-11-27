@@ -10,7 +10,8 @@ import java.time.Instant;
  * between several devices, fast or slow (to some degree)
  */
 public class DisplayRefresh implements Runnable {
-	private static double deltaTime;
+	private static float deltaTime;
+	private static float idealFrameRate;
 
 	/**
 	 * This class is in charge of measuring the delta-time between frames and calling the Display refresh method
@@ -37,6 +38,7 @@ public class DisplayRefresh implements Runnable {
 
 	@Override
 	public void run() {
+		double idealDeltaTime = 1.0 / idealFrameRate;
 		while(true){
 			Instant initialTime=Instant.now(); //gets the starting point of the time measurement
 			Display.refresh(); //calls the Display refresh method
@@ -46,9 +48,8 @@ public class DisplayRefresh implements Runnable {
 			//equivalent to seconds, but with the decimal part
 			deltaTime=Duration.between(initialTime,finalTime).toMillis()*0.001;
 
-			//the loop ensures that some time is elapsed in the cycle to prevent that deltaTime depending classes
-			//get a value too small
-			if(deltaTime<0.016){
+			//the loop ensures that some time is elapsed in the cycle in order of allowing a consistent frame rate
+			if(deltaTime<idealDeltaTime){
 				try {
 					Thread.sleep((int)((0.016-deltaTime)*1000));
 				} catch (InterruptedException e) {
