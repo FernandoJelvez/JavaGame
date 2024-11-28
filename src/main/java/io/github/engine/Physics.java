@@ -6,14 +6,32 @@ package io.github.engine;
 public final class Physics {
     private static double globalGravity;
 
-	/**
-	 *Applies gravity to an Entity, changing its vertical speed
-	 * @param entity The Entity upon which gravity is applied
+	/**Applies calculations of projectile trajectory, changing its vertical speed and its position
+	 * @param entity The Entity which will be affected by the calculation of its trajectory
 	 */
-	public static void applyGravity(Entity entity){
-		double newYSpeed = (entity.getYSpeed()+((globalGravity * Display.getHeigth()) /2000) *entity.getAirTime());
+	public static void applyProjectileCinematic(Entity entity){
+		double deltaTime= DisplayRefresh.getDeltaTime();
+		double gravity;
+
+		if(entity.isUsingLocalGravity()){
+			gravity=entity.getGravity();
+		} else {
+			gravity=globalGravity;
+		}
+
+		double newYSpeed = applyGravity(entity.getYSpeed(), gravity,deltaTime);
 		entity.setYSpeed(newYSpeed);
-		entity.refresh();
+
+		/* speed in units, newYSpeed in units per second, globalGravity in units per square second, the equation is
+		(Yp = the previous Y value, v = speed, dt = deltaTime, g = gravity):
+		Y=Yp + v*dt + (a/2)*(dt)^2 */
+		float newY= (float)(entity.getY() + ((newYSpeed*deltaTime) + (gravity*deltaTime*deltaTime)/2));
+		float newX= (float) (entity.getX() + entity.getXSpeed()*deltaTime);
+		entity.setLocation(newX,newY);
+	}
+	
+	public static void applyGravity(double ySpeed,double gravity,double time){
+		return ySpeed + (gravity*time);
 	}
 
 	public static void setGlobalGravity(double gravity) {
