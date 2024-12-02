@@ -24,16 +24,16 @@ public class Stage {
 
 	public HashMap<String,Entity> getEntitiesBetween(int initialX,int initialY, int finalX,int finalY){
 		HashMap<String, Entity> localEntities=new HashMap<>();
-		entities.entrySet().stream().filter((e)->e.getValue().getX()<finalX && e.getValue().getX()>initialX)
-				.filter((e)->e.getValue().getY()<finalY && e.getValue().getY()>initialY)
+		entities.entrySet().stream().filter((e)->e.getValue().getUnitX()<finalX && e.getValue().getUnitX()>initialX)
+				.filter((e)->e.getValue().getUnitY()<finalY && e.getValue().getUnitY()>initialY)
 				.forEach((e)->localEntities.put(e.getKey(),e.getValue()));
 		return localEntities;
 	}
 
 	public HashMap<String, Tile> getTilesBetween(int initialX,int initialY,int finalX,int finalY){
 		HashMap<String, Tile> localTiles=new HashMap<>();
-		tiles.entrySet().stream().filter((e)->e.getValue().getX()<finalX && e.getValue().getX()>initialX)
-				.filter((e)->e.getValue().getY()<finalY && e.getValue().getY()>initialY)
+		tiles.entrySet().stream().filter((e)->e.getValue().getUnitX()<finalX && e.getValue().getUnitX()>initialX)
+				.filter((e)->e.getValue().getUnitY()<finalY && e.getValue().getUnitY()>initialY)
 				.forEach((e)->localTiles.put(e.getKey(),e.getValue()));
 		return localTiles;
 	}

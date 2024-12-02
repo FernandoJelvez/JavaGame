@@ -89,7 +89,7 @@ public final class Display {
         tiles.values().stream()
                 .filter(Entity.class::isInstance)
                 .forEach((e)->{
-                    Physics_X.applyProjectileCinematic((Entity)e);
+                    Physics.applyProjectileCinematic((Entity)e);
                 });
         panel.revalidate();
         frame.repaint();

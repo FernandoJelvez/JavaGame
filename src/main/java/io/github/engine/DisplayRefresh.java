@@ -9,9 +9,9 @@ import java.time.Instant;
  * elapsed between frames, this, in turn allows for the movements across time to be the same
  * between several devices, fast or slow (to some degree)
  */
-public class DisplayRefresh implements Runnable {
+public final class DisplayRefresh implements Runnable {
 	private static float deltaTime;
-	private static float idealFrameRate;
+	private static int idealFrameRate;
 
 	/**
 	 * This class is in charge of measuring the delta-time between frames and calling the Display refresh method
@@ -23,10 +23,11 @@ public class DisplayRefresh implements Runnable {
 	/**
 	 * Starts the new thread, starting the Display Refresh cycle
 	 */
-	public static void startClock(){
+	public static void startClock(int idealFrameRate){
 		DisplayRefresh clock = new DisplayRefresh();
 		Thread clockThread = new Thread(clock);
 		clockThread.start();
+		DisplayRefresh.idealFrameRate=idealFrameRate;
 	}
 
 	/**
@@ -38,6 +39,7 @@ public class DisplayRefresh implements Runnable {
 
 	@Override
 	public void run() {
+		Display.refresh();
 		double idealDeltaTime = 1.0 / idealFrameRate;
 		while(true){
 			Instant initialTime=Instant.now(); //gets the starting point of the time measurement
@@ -46,17 +48,17 @@ public class DisplayRefresh implements Runnable {
 
 			//the time elapsed between the two measurements converted to milliseconds, then multiplied by 0.001 to be
 			//equivalent to seconds, but with the decimal part
-			deltaTime=Duration.between(initialTime,finalTime).toMillis()*0.001;
+			deltaTime=(float)(Duration.between(initialTime,finalTime).toMillis()*0.001);
 
 			//the loop ensures that some time is elapsed in the cycle in order of allowing a consistent frame rate
-			if(deltaTime<idealDeltaTime){
+			if(deltaTime< idealDeltaTime) {
 				try {
-					Thread.sleep((int)((0.016-deltaTime)*1000));
+					Thread.sleep((int) ((idealDeltaTime - deltaTime) * 1000));
 				} catch (InterruptedException e) {
 					throw new RuntimeException(e);
 				}
-				finalTime=Instant.now();
-				deltaTime = Duration.between(initialTime,finalTime).toMillis()*0.001;
+				finalTime = Instant.now();
+				deltaTime = (float) (Duration.between(initialTime, finalTime).toMillis() * 0.001);
 			}
 		}
 	}
