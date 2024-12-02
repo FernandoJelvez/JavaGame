@@ -5,11 +5,11 @@ import javax.swing.JLabel;
 import java.awt.Color;
 
 public abstract class AbstractTile {
-	private final JLabel = new JLabel();
+	private final JLabel label= new JLabel();
 	private boolean solid;
 	private int layer;
-	private int unitHeight;
-	private int unitWidth;
+	private float unitHeight, unitWidth;
+	private float unitX,unitY;
 	
 	public AbstractTile(int width, int height,boolean solid,int layer){
 		label.setSize(width*Display.getUnitValue(),height*Display.getUnitValue());
@@ -30,6 +30,10 @@ public abstract class AbstractTile {
 	
 	public int getLayer() {
 		return layer;
+		layerChanged=true;
+	}
+	public JLabel getLabel(){
+		return label;
 	}
 	public void setSize(int width,int height) {
 		label.setSize(width*Display.getUnitValue(), height*Display.getUnitValue());
@@ -44,6 +48,8 @@ public abstract class AbstractTile {
 		return (int)(label.getSize().getHeight()/Display.getUnitValue());
 	}
 	public void setLocation(float x, float y){
+		unitX=x;
+		unitY=y;
 		label.setLocation(Math.round(x*Display.getUnitValue()),Math.round((y-getHeight())*Display.getUnitValue()));
 	}
 	public void setVisible(boolean flag){
@@ -57,24 +63,27 @@ public abstract class AbstractTile {
 	 * This method returns the x coordinate of the bottom left corner of the tile
 	 * @return the x coordinate in units
 	 */
-	public float getX(){
-		return (float) label.getX() /Display.getUnitValue();
+	public float getUnitX(){
+		return unitX
 	}
 
 	/**
 	 * This method returns the y coordinate of the bottom left corner of the tile
 	 * @return the y coordinate in units
 	 */
-	public float getY(){
-		return (float) (label.getBounds().getMaxY()/Display.getUnitValue());
+	public float getUnitY(){
+		return unitY
 	}
 	public void setColor(int r,int g,int b){
 		label.setBackground(new Color(r,g,b));
 		System.out.println(new Color(r,g,b));
 	}
 
-	public void refreshSize(){
+	public void adaptSize(){
 		setSize(unitWidth,unitHeight);
+	}
+	public void adaptPosition(){
+		setLocation(unitX,unitY)
 	}
 	/**
 	*This method is called by the {@code Display} class every frame, it should be used
