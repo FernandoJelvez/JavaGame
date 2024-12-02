@@ -1,84 +1,90 @@
+package io.github.engine;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
 import java.io.File;
+public class Song {
 
-class Song {
+	//Allowed volumes
+	//Max: 6.0 dB
+	//Min: -80.0 dB
+	//Normal: 0 dB
 
-    //VOLUMENES PERMITIDOS
-    //MAXIMO: 6.0 dB
-    //MINIMO: -80.0 dB
-    //NORMAL: 0 dB
+	private FloatControl volume;
+	private Clip clip = null;
+	private boolean isLoop = false;
 
-    private FloatControl volumen;
-    private Clip clip = null;
-    private boolean isLoop = false;
+	public Song(String fileRoute) {
+		File file = new File(fileRoute);
+		clip = instantiateClip(file);
+	}
 
-    public Song(String rutaArchivo) {
-        File archivo = new File(rutaArchivo);
-        clip = instanciarClip(clip, archivo);
-    }
+	public Song(File file) {
+		clip = instantiateClip(file);
+	}
 
-    public Song(File archivo) {
-        clip = instanciarClip(clip, archivo);
-    }
+	public Song(File file, float volume) {
+		clip = instantiateClip(file);
+		setVolume(volume);
+	}
 
-    public Song(File archivo, float volumen) {
-        clip = instanciarClip(clip, archivo);
-        setVolumen(volumen);
-    }
+	public void start (){
+		clip.start();
+		if (isLoop){
+			clip.loop(Clip.LOOP_CONTINUOUSLY);
+		}
+	}
 
-    public void start (){
-        clip.start();
-        if (isLoop){
-            clip.loop(Clip.LOOP_CONTINUOUSLY);
-        }
-    }
+	//"CLIP.STOP" solo pausa la reproduccion, si se inicia nuevamente se empezara desde el frame que quedo
+	public void pause(){
+		clip.stop();
+	}
 
-    //"CLIP.STOP" solo pausa la reproduccion, si se inicia nuevamente se empezara desde el frame que quedo
-    public void pausar(){
-        clip.stop();
-    }
-
-    public void detener(){
-        clip.stop();
-        clip.setFramePosition(0);
-    }
-
-
-    private Clip instanciarClip(Clip clip, File archivo) {
-        try {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(archivo);
-            clip = AudioSystem.getClip();
-            clip.open(audioInputStream);
-        } catch (Exception e) {
-        }
-        return clip;
-    }
-
-    public void setVolumen(float volumen) {
-        this.volumen = (FloatControl) this.clip.getControl(FloatControl.Type.MASTER_GAIN);
-        this.volumen.setValue(volumen);
-    }
-
-    public float getVolumen() {
-        return this.volumen.getValue();
-    }
+	public void stop(){
+		clip.stop();
+		clip.setFramePosition(0);
+	}
 
 
-    public void loop(){
-        isLoop = true;
-        clip.setLoopPoints(0,clip.getFrameLength()-1);
-    }
+	private Clip instantiateClip(File file) {
+		Clip clip=null;
+		try {
+			AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file);
+			clip = AudioSystem.getClip();
+			clip.open(audioInputStream);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		return clip;
+	}
 
-    public boolean isLoop(){
-        return isLoop;
-    }
+	public void setVolume(float volume) {
+		this.volume = (FloatControl) this.clip.getControl(FloatControl.Type.MASTER_GAIN);
+		this.volume.setValue(volume);
+	}
+	public void setVolumePercentage(float volume) {
+		this.volume = (FloatControl) this.clip.getControl(FloatControl.Type.MASTER_GAIN);
+		this.volume.setValue((float) ((volume*0.86)-80));
+	}
 
-    public void loop(int primerFrame, int ultimoFrame){
-        isLoop = true;
-        clip.setLoopPoints(primerFrame,ultimoFrame);
-    }
+	public float getVolume() {
+		return this.volume.getValue();
+	}
+
+
+	public void loop(){
+		isLoop = true;
+		clip.setLoopPoints(0,clip.getFrameLength()-1);
+	}
+
+	public boolean isLoop(){
+		return isLoop;
+	}
+
+	public void loop(int firstSample, int lastSample){
+		isLoop = true;
+		clip.setLoopPoints(firstSample,lastSample);
+	}
 
 }
