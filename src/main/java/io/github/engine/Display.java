@@ -1,14 +1,16 @@
 package io.github.engine;
 
+import javax.swing.JPanel;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
+import java.awt.Dimension;
 import java.util.HashMap;
 
 /**
  * This class is in charge of rendering the objects in the window,
  * storing said objects and calling their refresh methods.
  * @apiNote This class contains only static methods as it meant for the Display to be unique. This class
- * was not designed for inheritance
+ * was not designed for inheritance, neither for making objects
  */
 public final class Display {
     private static JFrame frame;
@@ -16,7 +18,8 @@ public final class Display {
     private static HashMap<String,AbstractTile> buffer=new HashMap<>();
     private static HashMap<String, AbstractTile> tiles =new HashMap<>();
     private static boolean bufferChanged;
-    private static int screenHeight
+    private static int screenHeight;
+    private static int windowsBarHeight;
 
     /**
      * This method sets the value of the variables of this class, in this case, it sets the
@@ -27,11 +30,11 @@ public final class Display {
      */
     public static void setup(String name,int width, int height){
         frame = new JFrame(name);
-        panel = new JPanel()
+        panel = new JPanel();
         frame.setSize(width,height);
         panel.setSize(width,height);
         Display.screenHeight = height;
-	Display.panel.setPreferredSize(new Dimension(width,height));
+        Display.panel.setPreferredSize(new Dimension(width,height));
         frame.add(panel);
     }
 
@@ -40,12 +43,12 @@ public final class Display {
      * that allow the objects to display correctly
      */
     public static void start(){
-        Display.frame.setVisible(true);
         Display.panel.setVisible(true);
-	Display.frame.pack();
+        Display.frame.setVisible(true);
+        Display.frame.pack();
+        Display.panel.setLayout(null);
         Display.frame.setLayout(null);
-        Display.frame.setLayout(null);
-	windowsBarHeight=frame.getHeight()-panel.getHeight();
+        windowsBarHeight=frame.getHeight()-panel.getHeight();
         Display.frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
@@ -74,10 +77,13 @@ public final class Display {
                     });
             buffer.clear();
         }
+        //updates the layer in which the tile is displayed
         tiles.values().stream()
-                .filter(Entity.class::isInstance)
-                .forEach((e)->{Physics.applyGravity((Entity)e);((Entity)e).refresh();});
-		//calls abstract refresh method in every tile
+                .filter(AbstractTile::isLayerChanged).forEach(
+                        (e)->{frame.setComponentZOrder(e.getLabel(),e.getLayer());
+                        e.setLayerChangedFalse();}
+                );
+        //calls abstract refresh method in every tile
         tiles.values().forEach(AbstractTile::refresh);
         //applies projectile trajectory calculations to every Entity
         tiles.values().stream()
@@ -90,7 +96,7 @@ public final class Display {
         bufferChanged=false;
     }
 
-    public static double getHeigth(){
+    public static double getHeight(){
         return frame.getSize().getHeight();
     }
     public static HashMap<String,AbstractTile> retrieveTiles(){
@@ -99,25 +105,24 @@ public final class Display {
     public static AbstractTile retrieveTile(String id){
         return tiles.get(id);
     }
+
     /**
      * Calculates the value of a unit, which is the an amount of pixels used as measurement by the other classes as the
      * standard measurement unit
      * @return an integer with the value of a unit measured in pixels
      */
-    public static int getUnitValue(){
-		return frame.getHeight() / 60;
+    public static float getUnitValue(){
+		return (float) frame.getHeight() / 60;
     }
     public static boolean checkScreenHeightChanged(){
-        System.out.println("check: "+ (frame.getHeight()==screenHeight));
-        System.out.println("check: "+frame.getHeight());
         return !(frame.getHeight()==screenHeight);
     }
     public static void adaptSize(){
-        panel.setSize(frame.getSize());
+        panel.setSize(frame.getWidth(),frame.getHeight()-windowsBarHeight);
         screenHeight= frame.getHeight();
-        tiles.values().forEach(AbstractTile::refreshSize);
+        tiles.values().forEach(AbstractTile::adaptSize);
     }
-	public static void adaptPosition(){
-		tiles.values().forEach(AbstractTile::adaptPosition);
+    public static void adaptPosition(){
+        tiles.values().forEach(AbstractTile::adaptPosition);
     }
 }

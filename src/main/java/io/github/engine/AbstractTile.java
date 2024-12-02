@@ -1,42 +1,45 @@
 package io.github.engine;
 
-
 import javax.swing.JLabel;
 import java.awt.Color;
 
 public abstract class AbstractTile {
-	private final JLabel label= new JLabel();
+	private final JLabel label = new JLabel();
 	private boolean solid;
 	private int layer;
 	private float unitHeight, unitWidth;
 	private float unitX,unitY;
-	
+	private boolean layerChanged;
 	public AbstractTile(int width, int height,boolean solid,int layer){
-		label.setSize(width*Display.getUnitValue(),height*Display.getUnitValue());
+		label.setSize(Math.round(width*Display.getUnitValue()),Math.round(height*Display.getUnitValue()));
 		unitWidth=width;
 		unitHeight=height;
 		this.solid=solid;
 		this.layer=layer;
 		label.setOpaque(true);
 	}
-	
+
 	public boolean isSolid() {
 		return solid;
 	}
-
 	public void setSolid(boolean flag){
 		solid=flag;
 	}
-	
+
 	public int getLayer() {
 		return layer;
+	}
+	public void changeLayer(int layer){
+		this.layer=layer;
 		layerChanged=true;
 	}
+
 	public JLabel getLabel(){
 		return label;
 	}
-	public void setSize(int width,int height) {
-		label.setSize(width*Display.getUnitValue(), height*Display.getUnitValue());
+
+	public void setSize(float width,float height) {
+		label.setSize(Math.round(width*Display.getUnitValue()), Math.round(height*Display.getUnitValue()));
 		unitWidth=width;
 		unitHeight=height;
 	}
@@ -47,10 +50,11 @@ public abstract class AbstractTile {
 	public int getHeight(){
 		return (int)(label.getSize().getHeight()/Display.getUnitValue());
 	}
+
 	public void setLocation(float x, float y){
 		unitX=x;
 		unitY=y;
-		label.setLocation(Math.round(x*Display.getUnitValue()),Math.round((y-getHeight())*Display.getUnitValue()));
+		label.setLocation(Math.round(x*Display.getUnitValue()),Math.round(y*Display.getUnitValue()));
 	}
 	public void setVisible(boolean flag){
 		label.setVisible(flag);
@@ -64,7 +68,7 @@ public abstract class AbstractTile {
 	 * @return the x coordinate in units
 	 */
 	public float getUnitX(){
-		return unitX
+		return unitX;
 	}
 
 	/**
@@ -72,22 +76,25 @@ public abstract class AbstractTile {
 	 * @return the y coordinate in units
 	 */
 	public float getUnitY(){
-		return unitY
-	}
-	public void setColor(int r,int g,int b){
-		label.setBackground(new Color(r,g,b));
-		System.out.println(new Color(r,g,b));
+		return unitY;
 	}
 
-	public void adaptSize(){
+	public void setColor(int r,int g,int b){
+		label.setBackground(new Color(r,g,b));
+	}
+
+	protected void adaptSize(){
 		setSize(unitWidth,unitHeight);
 	}
-	public void adaptPosition(){
-		setLocation(unitX,unitY)
+	protected abstract void refresh();
+
+	protected void adaptPosition() {
+		setLocation(unitX,unitY);
 	}
-	/**
-	*This method is called by the {@code Display} class every frame, it should be used
- 	*with the purpose of changing size, color or any other refresh application
-	*/
-	public abstract void refresh();
+	protected boolean isLayerChanged(){
+		return layerChanged;
+	}
+	protected void setLayerChangedFalse(){
+		layerChanged=false;
+	}
 }
