@@ -31,6 +31,7 @@ public final class Display {
         frame.setSize(width,height);
         panel.setSize(width,height);
         Display.screenHeight = height;
+	Display.panel.setPreferredSize(new Dimension(width,height));
         frame.add(panel);
     }
 
@@ -41,8 +42,10 @@ public final class Display {
     public static void start(){
         Display.frame.setVisible(true);
         Display.panel.setVisible(true);
+	Display.frame.pack();
         Display.frame.setLayout(null);
         Display.frame.setLayout(null);
+	windowsBarHeight=frame.getHeight()-panel.getHeight();
         Display.frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
@@ -58,13 +61,14 @@ public final class Display {
 
     public static void refresh(){
         if(checkScreenHeightChanged()){
-            System.out.println(true);
-            refreshSize();
+            adaptSize();
+            adaptPosition();
         }
+        //adds elements which were waiting in the buffer
         if (bufferChanged){
             buffer.entrySet().stream()
                     .filter((e)->!tiles.containsKey(e.getKey())).forEach((e)->{
-                        tiles.put(e.getKey(),e.getValue()); 
+                        tiles.put(e.getKey(),e.getValue());
                         e.getValue().setVisible(true);
                         panel.add(e.getValue().getLabel());
                     });
@@ -73,6 +77,14 @@ public final class Display {
         tiles.values().stream()
                 .filter(Entity.class::isInstance)
                 .forEach((e)->{Physics.applyGravity((Entity)e);((Entity)e).refresh();});
+		//calls abstract refresh method in every tile
+        tiles.values().forEach(AbstractTile::refresh);
+        //applies projectile trajectory calculations to every Entity
+        tiles.values().stream()
+                .filter(Entity.class::isInstance)
+                .forEach((e)->{
+                    Physics_X.applyProjectileCinematic((Entity)e);
+                });
         panel.revalidate();
         frame.repaint();
         bufferChanged=false;
@@ -100,9 +112,12 @@ public final class Display {
         System.out.println("check: "+frame.getHeight());
         return !(frame.getHeight()==screenHeight);
     }
-    public static void refreshSize(){
+    public static void adaptSize(){
         panel.setSize(frame.getSize());
         screenHeight= frame.getHeight();
         tiles.values().forEach(AbstractTile::refreshSize);
+    }
+	public static void adaptPosition(){
+		tiles.values().forEach(AbstractTile::adaptPosition);
     }
 }
