@@ -1,6 +1,7 @@
 package io.github.engine;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -25,21 +26,21 @@ public class Physics {
 		}
 		double newYSpeed = applyGravity(entity.getYSpeed(), gravity, deltaTime);
 		entity.setYSpeed(newYSpeed);
-		float newY = (float) (entity.getUnitY() + ((newYSpeed * deltaTime) + (gravity * deltaTime * deltaTime) / 2));
-		float newX = (float) (entity.getUnitX() + entity.getXSpeed() * deltaTime);
-		Rectangle entityBoundary= (Rectangle) entity.getLabel().getBounds().clone();
-		entityBoundary.setLocation((int)Math.round(newX*unit),(int)Math.round(newY*unit));
-		List<AbstractTile> collidingTiles=getCollidingTiles(entityBoundary,entity);
+		float idealY = (float) (entity.getUnitY() + ((entity.getYSpeed() * deltaTime) + (gravity * deltaTime * deltaTime) / 2));
+		float idealX = (float) (entity.getUnitX() + entity.getXSpeed() * deltaTime);
+		Rectangle expectedEntityBoundary = (Rectangle) entity.getLabel().getBounds().clone();
+		expectedEntityBoundary.setLocation((int)Math.round(idealX *unit),(int)Math.round(idealY *unit));
+		List<AbstractTile> collidingTiles=getCollidingTiles(expectedEntityBoundary,entity);
 		if(collidingTiles.isEmpty()){
-			entity.setLocation(newX,newY);
+			entity.setLocation(idealX, idealY);
 		} else {
-			shortenTrajectory(entity,entityBoundary,collidingTiles,gravity);
+			shortenTrajectory(entity, expectedEntityBoundary, collidingTiles, gravity);
 		}
 	}
 
-	private static void shortenTrajectory(Entity entity,Rectangle entityBoundary,List<AbstractTile> collidingTiles,double gravity) {
-		long horizontallyColliding= checkHorizontalCollision(entityBoundary,collidingTiles);
-		long verticallyColliding= checkVerticalCollision(entityBoundary,collidingTiles);
+	private static void shortenTrajectory(Entity entity, Rectangle expectedEntityBoundary, List<AbstractTile> collidingTiles, double gravity) {
+		long horizontallyColliding= checkHorizontalCollision(expectedEntityBoundary,collidingTiles);
+		long verticallyColliding= checkVerticalCollision(expectedEntityBoundary,collidingTiles);
 		double xSpeed=entity.getXSpeed()*Display.getUnitValue();
 		double ySpeed=entity.getYSpeed()*Display.getUnitValue();
 		double initialX=entity.getLabel().getBounds().getMinX();
@@ -48,25 +49,37 @@ public class Physics {
 		double newY;
 		//this works (bottom)
 		if(horizontallyColliding!=0&&verticallyColliding==0){
-			newX=calculateShortenedPathX(collidingTiles,horizontallyColliding,entityBoundary);
+			newX=calculateShortenedPathX(collidingTiles,horizontallyColliding, expectedEntityBoundary);
 			newY = getYBasedOnX(newX, initialX, xSpeed, initialY, gravity, ySpeed);
 			entity.setXSpeed(0);
 		} else if (horizontallyColliding == 0 && verticallyColliding != 0) {
-			newY=calculateShortenedPathY(collidingTiles,verticallyColliding,entityBoundary);
+			newY=calculateShortenedPathY(collidingTiles,verticallyColliding, expectedEntityBoundary);
 			newX = getXBasedOnY(newY, initialY, ySpeed, initialX, gravity, xSpeed);
 			entity.setYSpeed(0);
+			if(verticallyColliding<0){
+				entity.setOnFloor(true);
+			}
 		}
 		else if (horizontallyColliding!=0){
-			newY=calculateShortenedPathY(collidingTiles,verticallyColliding,entityBoundary);
-			newX=calculateShortenedPathX(collidingTiles,horizontallyColliding,entityBoundary);
+			newY=calculateShortenedPathY(collidingTiles,verticallyColliding, expectedEntityBoundary);
+			newX=calculateShortenedPathX(collidingTiles,horizontallyColliding, expectedEntityBoundary);
 			entity.setYSpeed(0);
 			entity.setXSpeed(0);
+			if(verticallyColliding<0){
+				entity.setOnFloor(true);
+			}
 		}
 		else {
-			newX=entityBoundary.getX();
-			newY=entityBoundary.getY();
+			newX= expectedEntityBoundary.getX();
+			newY= expectedEntityBoundary.getY();
 		}
 		entity.setLocation((float) (newX/Display.getUnitValue()), (float) (newY/Display.getUnitValue()));
+		callCollsion(entity,collidingTiles);
+	}
+
+	private static void callCollsion(Entity entity, List<AbstractTile> collidingTiles) {
+		collidingTiles.stream().filter((e)-> Arrays.stream(e.getClass().getInterfaces()).anyMatch((i)->i.isInstance(Collidable.class)))
+				.map((e)->(Collidable)(e)).forEach((e)->e.collision(entity));
 	}
 
 	public static float calculateShortenedPathX(List<AbstractTile> collidingTile,long collidingSideIndex,Rectangle entityBoundary){
@@ -82,13 +95,14 @@ public class Physics {
 			return (float) entityBoundary.getX();
 		}
 	}
-	public static float calculateShortenedPathY(List<AbstractTile> collidingTile,long collidingSideIndex,Rectangle entityBoundary){
+	public static float calculateShortenedPathY(List<AbstractTile> collidingTiles, long collidingSideIndex, Rectangle entityBoundary){
 		if(collidingSideIndex<0){ //bottom collision
-			return (float)(collidingTile.stream().map((e)->e.getLabel().getBounds().getMinY())
-					.filter((e)->e>entityBoundary.getMinY())
-					.min(Double::compareTo).orElseThrow()-entityBoundary.getSize().getHeight());
+			return (float) ((collidingTiles.stream().map((e)->e.getLabel().getBounds()))
+								.filter((e)->e.getMinY()<entityBoundary.getMaxY()&&e.getMaxY()>entityBoundary.getMaxY())
+								.map(Rectangle::getMinY).filter((e)->e>0)
+								.min(Double::compareTo).orElseThrow().floatValue()-entityBoundary.getSize().getHeight());
 		} else if (collidingSideIndex>0) { //top collision
-			return collidingTile.stream().map((e)->e.getLabel().getBounds().getMaxY())
+			return collidingTiles.stream().map((e)->e.getLabel().getBounds().getMaxY())
 					.filter((e)->e<entityBoundary.getMaxY())
 					.max(Double::compareTo).orElseThrow().floatValue();
 		} else {
@@ -148,16 +162,23 @@ public class Physics {
 		}
 	}
 	private static double getXBasedOnY(double finalY,double initialY,double ySpeed,double initialX,double gravity,double xSpeed){
-		double NegativeDeltaY = initialY - finalY;
-		double root = Math.sqrt(((ySpeed * ySpeed) - (2 * (NegativeDeltaY) * gravity * Display.getUnitValue())));
-		double firstDeltaTime = ((ySpeed * (-1)) + root) / (2 * (NegativeDeltaY));
-		double secondDeltaTime = (((-1) * ySpeed) - root) / (2 * (NegativeDeltaY));
-		if ((!(firstDeltaTime>0)||(firstDeltaTime>secondDeltaTime))&&secondDeltaTime>0) {
-			return initialX+(xSpeed*secondDeltaTime);
-		} else if (NegativeDeltaY!=0) {
-			return initialX+(xSpeed*firstDeltaTime);
+		double negativeDeltaY = (initialY - finalY);
+		double root = Math.sqrt(((ySpeed * ySpeed) - (2 * (negativeDeltaY) * gravity * Display.getUnitValue())));
+		double firstDeltaTime = ((ySpeed * (-1)) + root) / (2 * (negativeDeltaY));
+		double secondDeltaTime = (((-1) * ySpeed) - root) / (2 * (negativeDeltaY));
+		double result;
+		if ((!(firstDeltaTime>0)||(firstDeltaTime>secondDeltaTime))&&secondDeltaTime>0&&Math.abs(ySpeed)<150) {
+			result= initialX+(xSpeed*secondDeltaTime);
+		} else if (negativeDeltaY !=0&&Math.abs(ySpeed)<150) {
+			result= initialX+(xSpeed*firstDeltaTime);
 		}else{
-			return initialX+(xSpeed*DisplayRefresh.getDeltaTime());
+			result= initialX+(xSpeed*DisplayRefresh.getDeltaTime());
+		}
+		if (result >2000||result<-2000) {
+			return initialX;
+		}
+		else{
+			return result;
 		}
 	}
 
