@@ -24,24 +24,17 @@ public class Physics {
 			gravity = globalGravity;
 		}
 		double newYSpeed = applyGravity(entity.getYSpeed(), gravity, deltaTime);
+		entity.setYSpeed(newYSpeed);
 		float newY = (float) (entity.getUnitY() + ((newYSpeed * deltaTime) + (gravity * deltaTime * deltaTime) / 2));
 		float newX = (float) (entity.getUnitX() + entity.getXSpeed() * deltaTime);
 		Rectangle entityBoundary= (Rectangle) entity.getLabel().getBounds().clone();
 		entityBoundary.setLocation((int)Math.round(newX*unit),(int)Math.round(newY*unit));
 		List<AbstractTile> collidingTiles=getCollidingTiles(entityBoundary,entity);
-		System.out.println("InitialY: "+entity.getUnitY());
 		if(collidingTiles.isEmpty()){
 			entity.setLocation(newX,newY);
 		} else {
 			shortenTrajectory(entity,entityBoundary,collidingTiles,gravity);
-			System.out.println("+++++++++");
-			System.out.println("Collision!");
-			System.out.println("EntityBoundaryY: "+entityBoundary.getMinY()/Display.getUnitValue());
-			System.out.println("---------");
 		}
-		System.out.println("FinalY: "+entity.getUnitY());
-		System.out.println("*****************************************");
-		entity.setYSpeed(newYSpeed);
 	}
 
 	private static void shortenTrajectory(Entity entity,Rectangle entityBoundary,List<AbstractTile> collidingTiles,double gravity) {
@@ -54,8 +47,6 @@ public class Physics {
 		double newX;
 		double newY;
 		//this works (bottom)
-		System.out.println("HorizontalCollisionIndex: "+horizontallyColliding);
-		System.out.println("VerticalCollisionIndex: "+verticallyColliding);
 		if(horizontallyColliding!=0&&verticallyColliding==0){
 			newX=calculateShortenedPathX(collidingTiles,horizontallyColliding,entityBoundary);
 			newY = getYBasedOnX(newX, initialX, xSpeed, initialY, gravity, ySpeed);
@@ -81,9 +72,11 @@ public class Physics {
 	public static float calculateShortenedPathX(List<AbstractTile> collidingTile,long collidingSideIndex,Rectangle entityBoundary){
 		if(collidingSideIndex>0){
 			return (float) (collidingTile.stream().map((e)->e.getLabel().getBounds().getMinX())
+					.filter((e)->e>entityBoundary.getMinX())
 					.min(Double::compareTo).orElseThrow()-entityBoundary.getWidth());
 		} else if (collidingSideIndex<0) {
 			return collidingTile.stream().map((e)->e.getLabel().getBounds().getMaxX())
+					.filter((e)->e<entityBoundary.getMaxX())
 					.max(Double::compareTo).orElseThrow().floatValue();
 		} else {
 			return (float) entityBoundary.getX();
@@ -92,11 +85,11 @@ public class Physics {
 	public static float calculateShortenedPathY(List<AbstractTile> collidingTile,long collidingSideIndex,Rectangle entityBoundary){
 		if(collidingSideIndex<0){ //bottom collision
 			return (float)(collidingTile.stream().map((e)->e.getLabel().getBounds().getMinY())
+					.filter((e)->e>entityBoundary.getMinY())
 					.min(Double::compareTo).orElseThrow()-entityBoundary.getSize().getHeight());
 		} else if (collidingSideIndex>0) { //top collision
-			System.out.println("ShY: "+collidingTile.stream().map((e)->e.getLabel().getBounds().getMaxX())
-					.max(Double::compareTo).orElseThrow().floatValue()/Display.getUnitValue());
-			return collidingTile.stream().map((e)->e.getLabel().getBounds().getMaxX())
+			return collidingTile.stream().map((e)->e.getLabel().getBounds().getMaxY())
+					.filter((e)->e<entityBoundary.getMaxY())
 					.max(Double::compareTo).orElseThrow().floatValue();
 		} else {
 			return (float) entityBoundary.getY();
@@ -134,11 +127,12 @@ public class Physics {
 	public static long checkHorizontalCollision(Rectangle entityBoundary, List<AbstractTile> collidingTiles){
 		//works alright
 		long rightColliding= collidingTiles.stream().
-				map(AbstractTile::getLabel).filter((e)->e.getBounds().getMinX()<entityBoundary.getMinX()).count();
+				map(AbstractTile::getLabel).filter((e)->e.getBounds().getMinX()>entityBoundary.getMinX()).count();
 		long leftColliding= collidingTiles.stream()
-				.map(AbstractTile::getLabel).filter((e)->e.getBounds().getMaxX()>entityBoundary.getMaxX()).count();
+				.map(AbstractTile::getLabel).filter((e)->e.getBounds().getMaxX()<entityBoundary.getMaxX()).count();
 		return rightColliding-leftColliding;
 	}
+
 	public static List<AbstractTile> getCollidingTiles(Rectangle entityBoundary, Entity entity){
 		return Display.retrieveTiles().values().stream()
 				.filter((e)->e!=entity).filter(AbstractTile::isSolid)
@@ -158,7 +152,7 @@ public class Physics {
 		double root = Math.sqrt(((ySpeed * ySpeed) - (2 * (NegativeDeltaY) * gravity * Display.getUnitValue())));
 		double firstDeltaTime = ((ySpeed * (-1)) + root) / (2 * (NegativeDeltaY));
 		double secondDeltaTime = (((-1) * ySpeed) - root) / (2 * (NegativeDeltaY));
-		if ((!(firstDeltaTime>0)||(firstDeltaTime>secondDeltaTime))) {
+		if ((!(firstDeltaTime>0)||(firstDeltaTime>secondDeltaTime))&&secondDeltaTime>0) {
 			return initialX+(xSpeed*secondDeltaTime);
 		} else if (NegativeDeltaY!=0) {
 			return initialX+(xSpeed*firstDeltaTime);
