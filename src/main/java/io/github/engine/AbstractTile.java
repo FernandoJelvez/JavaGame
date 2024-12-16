@@ -1,6 +1,6 @@
 package io.github.engine;
 
-import javax.swing.JLabel;
+import javax.swing.*;
 import java.awt.Color;
 
 public abstract class AbstractTile {
@@ -29,12 +29,13 @@ public abstract class AbstractTile {
 	public int getLayer() {
 		return layer;
 	}
+
 	public void changeLayer(int layer){
 		this.layer=layer;
 		layerChanged=true;
 	}
 
-	public JLabel getLabel(){
+	protected JLabel getLabel(){
 		return label;
 	}
 
@@ -96,5 +97,8 @@ public abstract class AbstractTile {
 	}
 	protected void setLayerChangedFalse(){
 		layerChanged=false;
+	}
+	protected Boundary getBounds(){
+		return new Boundary(unitX,unitY,unitWidth,unitHeight);
 	}
 }

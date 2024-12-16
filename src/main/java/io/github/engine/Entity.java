@@ -6,6 +6,11 @@ public abstract class Entity extends AbstractTile{
 	private double xSpeed,ySpeed;
 	private int gravity=0;//the gravity the entity uses if it doesn't use the global gravity
 	private boolean usingLocalGravity=false; //signals if the entity uses the default gravity(false) or its own(true)
+	private boolean bottomLocked=false;
+	private boolean topLocked=false;
+	private boolean leftLocked=false;
+	private boolean rightLocked=false;
+	private int acceleration=0;
 
 	public Entity(int x, int y, AbstractTile tile){
 		super(tile.getWidth(),tile.getHeight(),tile.isSolid(),tile.getLayer());
@@ -44,11 +49,49 @@ public abstract class Entity extends AbstractTile{
 		this.xSpeed = xSpeed;
 	}
 
+	public boolean isBottomLocked() {
+		return bottomLocked;
+	}
+
+	public void setBottomLocked(boolean bottomLocked) {
+		this.bottomLocked = bottomLocked;
+	}
+
+	public boolean isTopLocked() {
+		return topLocked;
+	}
+
+	public void setTopLocked(boolean topLocked) {
+		this.topLocked = topLocked;
+	}
+
+	public boolean isLeftLocked() {
+		return leftLocked;
+	}
+
+	public void setLeftLocked(boolean leftLocked) {
+		this.leftLocked = leftLocked;
+	}
+
+	public boolean isRightLocked() {
+		return rightLocked;
+	}
+
+	public void setRightLocked(boolean rightLocked) {
+		this.rightLocked = rightLocked;
+	}
+
 	public double getXSpeed() {
 		return xSpeed;
 	}
 
 	public int getGravity() {
 		return gravity;
+	}
+	public void setAcceleration(int acceleration){
+		this.acceleration=acceleration;
+	}
+	public int getAcceleration(){
+		return acceleration;
 	}
 }
