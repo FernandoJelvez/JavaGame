@@ -1,13 +1,10 @@
 package io.github.game;
 
-import io.github.engine.AbstractTile;
-import io.github.engine.Collidable;
-import io.github.engine.Entity;
-import io.github.engine.Controllable;
+import io.github.engine.*;
 
-public class Player extends Entity implements Controllable, Collidable {
+public abstract class Player extends Entity implements Controllable, Collidable {
 	//jump force affects how much the player will jump, by multiplying the base jump speed
-	int jumpForce=1;
+	private int jumpForce=3;
 	//physics is the physics engined being used by the player,
 
 
@@ -21,46 +18,14 @@ public class Player extends Entity implements Controllable, Collidable {
 	}
 
 	@Override
-	public void upButton() {
+	public void press(ButtonNames name) {
 	}
 
-	@Override
-	public void downButton() {
-
+	public int getJumpForce() {
+		return jumpForce;
 	}
 
-	@Override
-	public void leftButton() {
-
-	}
-
-	@Override
-	public void rightButton() {
-
-	}
-
-	@Override
-	public void primaryButton() {
-		setYSpeed(jumpForce*(-3)); //this is an example of jump, it is relevant to make the result negative by the nature of coordinates in javax swing
-	}
-
-	@Override
-	public void secondaryButton() {
-
-	}
-
-	@Override
-	public void topCollision() {
-
-	}
-
-	@Override
-	public void sideCollision() {
-
-	}
-
-	@Override
-	protected void refresh() {
-
+	public void setJumpForce(int jumpForce) {
+		this.jumpForce = jumpForce;
 	}
 }

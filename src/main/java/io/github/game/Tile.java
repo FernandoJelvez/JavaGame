@@ -2,8 +2,7 @@ package io.github.game;
 
 import io.github.engine.AbstractTile;
 import io.github.engine.Collidable;
-
-import java.awt.*;
+import io.github.engine.Entity;
 
 public class Tile extends AbstractTile implements Collidable {
 	public Tile(int width, int height, boolean solid, int layer) {
@@ -24,12 +23,12 @@ public class Tile extends AbstractTile implements Collidable {
 	//Collidable interface methods
 
 	@Override
-	public void topCollision() {
+	public void topCollision(AbstractTile tile) {
 
 	}
 
 	@Override
-	public void sideCollision() {
+	public void sideCollision(AbstractTile tile) {
 
 	}
 }
