@@ -23,16 +23,19 @@ public class Physics {
 			gravity = globalGravity;
 		}
 		//speed is changed according to gravity
-		double newYSpeed = applyGravity(entity.getYSpeed(), gravity, deltaTime);
-		float idealY=(float) (entity.getUnitY() + ((entity.getYSpeed() * deltaTime) + (gravity * deltaTime * deltaTime) / 2));;
+		double newYSpeed;
+		float idealY;
+		newYSpeed=applyGravity(entity.getYSpeed(), gravity, deltaTime);
+		idealY=(float) (entity.getUnitY() + ((entity.getYSpeed() * deltaTime) + (gravity * deltaTime * deltaTime) / 2));
 		entity.setYSpeed(newYSpeed);
 		//the new location is calculated
-		float idealX = (float) (entity.getUnitX() + entity.getXSpeed() * deltaTime);
+		double newXSpeed= applyGravity(entity.getXSpeed(),entity.getxAcceleration(),deltaTime);
+		float idealX = (float) (entity.getUnitX() + ((entity.getXSpeed() * deltaTime)+(entity.getxAcceleration() * deltaTime * deltaTime) / 2));
+		entity.setXSpeed(newXSpeed);
 		//the expected future boundary is calculated
 		Boundary expectedEntityBoundary = entity.getBounds();
 		expectedEntityBoundary.setLocation(idealX,idealY);
-		AbstractTile[] collidingTiles=getCollidingTiles(entity);
-		System.out.println(posABasedOnB(entity.getUnitX(),entity.getUnitY(),expectedEntityBoundary.getMinY(),entity.getXSpeed(),entity.getYSpeed(),0,gravity));
+		AbstractTile[] collidingTiles=getCollidingTiles(expectedEntityBoundary,entity);
 		if(collidingTiles.length>0){
 			shortenTrajectory(entity,expectedEntityBoundary,collidingTiles,gravity);
 		} else {
@@ -48,38 +51,32 @@ public class Physics {
 		int verticalCollisions=checkVerticalCollision(expectedBoundary,collidingTiles);
 		float newX,newY;
 		if (horizontalCollisions!=0&&verticalCollisions!=0){
-			System.out.println("sB");
-			newX=getShortenedX(horizontalCollisions,collidingTiles,expectedBoundary,entity.getXSpeed());
-			newY=getShortenedY(verticalCollisions,collidingTiles,expectedBoundary,entity.getYSpeed());
+			newX=getShortenedX(horizontalCollisions,collidingTiles,expectedBoundary,entity);
+			newY=getShortenedY(verticalCollisions,collidingTiles,expectedBoundary,entity);
 		} else if(horizontalCollisions==0){
-			System.out.println("sY");
-			newY=getShortenedY(verticalCollisions,collidingTiles,expectedBoundary,entity.getYSpeed());
-			System.out.println("newY: "+newY);
-			newX=posABasedOnB(entity.getUnitX(),entity.getUnitY(),newY,entity.getXSpeed(),entity.getYSpeed(),0,gravity);
+			newY=getShortenedY(verticalCollisions,collidingTiles,expectedBoundary,entity);
+			float dT=deltaTimeBasedOnMovement(entity.getUnitY(),newY,entity.getYSpeed(),gravity);
+			newX=calculateUARM(entity.getUnitX(),entity.getXSpeed(),entity.getxAcceleration(),dT);
 		} else {
-			System.out.println("sX");
-			newX=getShortenedX(horizontalCollisions,collidingTiles,expectedBoundary,entity.getXSpeed());
-			newY=posABasedOnB(entity.getUnitY(),entity.getUnitX(),newX,entity.getYSpeed(),entity.getXSpeed(),gravity,0);
+			newX = getShortenedX(horizontalCollisions, collidingTiles, expectedBoundary, entity);
+			float dT=deltaTimeBasedOnMovement(entity.getUnitX(),newX,entity.getXSpeed(),entity.getxAcceleration());
+			newY=calculateUARM(entity.getUnitY(),entity.getYSpeed(),gravity,dT);
 		}
-		if(entity.isBottomLocked()&&entity.getYSpeed()>0||entity.isTopLocked()&&entity.getYSpeed()<0){
-			entity.setLocation(newX,entity.getUnitY());
-		} else if (entity.isRightLocked()&&entity.getXSpeed()>0||entity.isLeftLocked()&&entity.getXSpeed()<0){
-			entity.setLocation(entity.getUnitX(),newY);
-		}else {
-			entity.setLocation(newX,newY);
-		}
+		entity.setLocation(newX,newY);
 		applyEntityCollision(entity,expectedBoundary,newX,newY,verticalCollisions,horizontalCollisions);
 	}
 	public static void applyEntityCollision(Entity entity, Boundary expectedBoundary, float newX, float newY,float vCIndex, float hCIndex){
-		if(newX!=expectedBoundary.getUnitX()&&hCIndex!=0) {
+		if(newX!=expectedBoundary.getUnitX()&&hCIndex!=0&&!entity.isRightLocked()&&!entity.isLeftLocked()) {
 			entity.setXSpeed(0);
 			if (hCIndex > 0) {
 				entity.setRightLocked(true);
+				entity.setLeftLocked(false);
 			} else {
 				entity.setLeftLocked(true);
+				entity.setRightLocked(false);
 			}
 		}
-		if(newY!=expectedBoundary.getUnitY()&&vCIndex!=0){
+		if(newY!=expectedBoundary.getUnitY()&&vCIndex!=0&&!entity.isBottomLocked()&&!entity.isTopLocked()){
 			entity.setYSpeed(0);
 			if(hCIndex>0) {
 				entity.setTopLocked(true);
@@ -90,19 +87,19 @@ public class Physics {
 			}
 		}
 	}
-	public static float posABasedOnB(float initialA, float initialB, float finalB, double aSpeed, double bSpeed,double aAccel,double bAccel){
-		float negativeDeltaB=initialB-finalB;
-
-		float discriminant= (float) ((bSpeed*bSpeed)-(2*negativeDeltaB*bAccel));
+	public static float calculateUARM(float initialA, double aSpeed, double aAccel,float deltaTime){
+		return (float) (initialA+(aSpeed*deltaTime)+(aAccel/2)*deltaTime*deltaTime);
+	}
+	public static float deltaTimeBasedOnMovement(float initialB,float finalB,double bSpeed,double bAccel){
+		float deltaB=initialB-finalB;
+		float discriminant= (float) ((bSpeed*bSpeed)-(2* deltaB *bAccel));
 		if(bAccel==0){
 			bAccel=1;
 		}
 		float deltaTime = (float) (((bSpeed*(-1))-Math.sqrt(discriminant))/(bAccel));
-		if(discriminant==0){
-			deltaTime =0;
-		}else if((discriminant>0)) {
+		if((discriminant>0)) {
 			float newDTime = (float) (((bSpeed * (-1)) + Math.sqrt(discriminant))/(bAccel));
-			if(((newDTime<deltaTime)&&(newDTime>0))||(deltaTime<0&&!(newDTime<0))){
+			if((((newDTime<deltaTime)&&(newDTime>0))||(deltaTime<0&&!(newDTime<0)))&&deltaB!=0){
 				deltaTime=newDTime;
 			} else {
 				deltaTime=DisplayRefresh.getDeltaTime();
@@ -110,26 +107,31 @@ public class Physics {
 		} else {
 			deltaTime=DisplayRefresh.getDeltaTime();
 		}
-		return (float) (initialA+(aSpeed*deltaTime)+(aAccel/2)*deltaTime*deltaTime);
+		return deltaTime;
 	}
-	public static float getShortenedX(int collisionIndex, AbstractTile[] collidingTiles, Boundary entityBoundary, double xSpeed){
-		if(collisionIndex>0&&xSpeed>0){
+
+	public static float getShortenedX(int collisionIndex, AbstractTile[] collidingTiles, Boundary entityBoundary, Entity entity){
+		if(collisionIndex>0&&entity.getXSpeed()>0&&!entity.isRightLocked()){
 			return Arrays.stream(collidingTiles).map(AbstractTile::getBounds)
 					.map(Boundary::getMinX).min(Double::compare).orElseThrow()- entityBoundary.getUnitWidth();
-		} else if(collisionIndex<0&&xSpeed<0) {
+		} else if(collisionIndex<0&&entity.getXSpeed()<0&&!entity.isLeftLocked()) {
 			return Arrays.stream(collidingTiles).map(AbstractTile::getBounds)
 					.map(Boundary::getMaxX).max(Double::compare).orElseThrow();
+		} else if(entity.isRightLocked()||entity.isLeftLocked()) {
+			return entity.getUnitX();
 		} else {
 			return entityBoundary.getUnitX();
 		}
 	}
-	public static float getShortenedY(int collisionIndex, AbstractTile[] collidingTiles, Boundary entityBoundary,double ySpeed){
-		if(collisionIndex>0&&ySpeed<0){
+	public static float getShortenedY(int collisionIndex, AbstractTile[] collidingTiles, Boundary entityBoundary,Entity entity){
+		if(collisionIndex>0&&entity.getYSpeed()<0&&!entity.isTopLocked()){
 			return Arrays.stream(collidingTiles).map(AbstractTile::getBounds)
 					.map(Boundary::getMaxY).max(Double::compare).orElseThrow();
-		} else if(collisionIndex<0&&ySpeed>0){
+		} else if(collisionIndex<0&&entity.getYSpeed()>0&&!entity.isBottomLocked()){
 			return Arrays.stream(collidingTiles).map(AbstractTile::getBounds)
 					.map(Boundary::getMinY).min(Double::compare).orElseThrow()-entityBoundary.getUnitHeight();
+		} else if(entity.isBottomLocked()||entity.isTopLocked()){
+			return entity.getUnitY();
 		} else {
 			return entityBoundary.getUnitY();
 		}
@@ -142,18 +144,18 @@ public class Physics {
 		return (int) (rightCollisions-leftCollisions);
 	}
 	public static int checkVerticalCollision(Boundary entityExpectedBoundary,AbstractTile[] collidingTiles){
-		System.out.println(collidingTiles.length);
-		long topCollisions=Arrays.stream(collidingTiles)
-				.map(AbstractTile::getBounds).filter((e)->entityExpectedBoundary.getMinY()>e.getMinY()).count();
+		long topCollisions=Arrays.stream(collidingTiles).map(AbstractTile::getBounds)
+				.filter((e)->entityExpectedBoundary.getMinY()>e.getMinY()&&entityExpectedBoundary.getMinY()<e.getMaxY())
+				.count();
 		long bottomCollisions =Arrays.stream(collidingTiles)
 				.map(AbstractTile::getBounds).filter((e)->entityExpectedBoundary.getMaxY()<e.getMaxY()).count();
 		return (int) (topCollisions -bottomCollisions);
 	}
 
-	public static AbstractTile[] getCollidingTiles(Entity entity){
-		Boundary eBounds=entity.getBounds();
+	public static AbstractTile[] getCollidingTiles(Boundary expectedBoundary,Entity entity){
 		return Display.retrieveTiles().values().stream()
-				.filter((e)-> eBounds.intersects(e.getBounds())).toArray(AbstractTile[]::new);
+				.filter((e)-> expectedBoundary.intersects(e.getBounds()))
+				.filter((e)->!e.equals(entity)).toArray(AbstractTile[]::new);
 	}
 
 	public static double applyGravity(double ySpeed,double gravity,double time){

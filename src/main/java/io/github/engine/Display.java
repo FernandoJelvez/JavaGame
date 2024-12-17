@@ -15,6 +15,7 @@ import java.util.HashMap;
 public final class Display {
     private static JFrame frame;
     private static JPanel panel;
+    private static Controllable player;
     private static HashMap<String,AbstractTile> buffer=new HashMap<>();
     private static HashMap<String, AbstractTile> tiles =new HashMap<>();
     private static boolean bufferChanged;
@@ -38,6 +39,9 @@ public final class Display {
         frame.add(panel);
     }
 
+    public static void setPlayer(Controllable player){
+        Display.player = player;
+    }
     /**
      * Starts the window, making it visible and setting some of the Display's inner JFrame configurations
      * that allow the objects to display correctly
@@ -50,6 +54,7 @@ public final class Display {
         Display.frame.setLayout(null);
         windowsBarHeight=frame.getHeight()-panel.getHeight();
         Display.frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.addKeyListener(new Control(player));
     }
 
     /**

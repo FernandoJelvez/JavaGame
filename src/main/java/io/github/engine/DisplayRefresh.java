@@ -33,7 +33,7 @@ public final class DisplayRefresh implements Runnable {
 	/**
 	 * @return {@code deltaTime}
 	 */
-	public static double getDeltaTime(){
+	public static float getDeltaTime(){
 		return deltaTime;
 	}
 

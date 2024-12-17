@@ -1,5 +1,6 @@
 package io.github.engine;
 
+import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -18,28 +19,48 @@ public class Control implements KeyListener{
 		int keyCode = e.getKeyCode();
 		switch (keyCode){
 			case 37:
-				controllable.leftButton();
+				controllable.press(ButtonNames.LEFT);
 				break;
 			case 38:
-				controllable.upButton();
+				controllable.press(ButtonNames.UP);
 				break;
 			case 39:
-				controllable.rightButton();
+				controllable.press(ButtonNames.RIGHT);
 				break;
 			case 40:
-				controllable.downButton();
+				controllable.press(ButtonNames.DOWN);
 				break;
 			case 88:
-				controllable.primaryButton();
+				controllable.press(ButtonNames.PRIMARY);
 				break;
 			case 90:
-				controllable.secondaryButton();
+				controllable.press(ButtonNames.SECONDARY);
 				break;
 		}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-
+		int keyCode = e.getKeyCode();
+		switch (keyCode) {
+			case 37:
+				controllable.release(ButtonNames.LEFT);
+				break;
+			case 38:
+				controllable.release(ButtonNames.UP);
+				break;
+			case 39:
+				controllable.release(ButtonNames.RIGHT);
+				break;
+			case 40:
+				controllable.release(ButtonNames.DOWN);
+				break;
+			case 88:
+				controllable.release(ButtonNames.PRIMARY);
+				break;
+			case 90:
+				controllable.release(ButtonNames.SECONDARY);
+				break;
+		}
 	}
 }
