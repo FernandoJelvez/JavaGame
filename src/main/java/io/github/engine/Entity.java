@@ -1,7 +1,5 @@
 package io.github.engine;
 
-import java.util.List;
-
 public abstract class Entity extends AbstractTile{
 	private double xSpeed,ySpeed;
 	private int gravity=0;//the gravity the entity uses if it doesn't use the global gravity
@@ -10,7 +8,7 @@ public abstract class Entity extends AbstractTile{
 	private boolean topLocked=false;
 	private boolean leftLocked=false;
 	private boolean rightLocked=false;
-	private int acceleration=0;
+	private int xAcceleration =0;
 
 	public Entity(int x, int y, AbstractTile tile){
 		super(tile.getWidth(),tile.getHeight(),tile.isSolid(),tile.getLayer());
@@ -88,10 +86,10 @@ public abstract class Entity extends AbstractTile{
 	public int getGravity() {
 		return gravity;
 	}
-	public void setAcceleration(int acceleration){
-		this.acceleration=acceleration;
+	public void setxAcceleration(int xAcceleration){
+		this.xAcceleration = xAcceleration;
 	}
-	public int getAcceleration(){
-		return acceleration;
+	public int getxAcceleration(){
+		return xAcceleration;
 	}
 }
