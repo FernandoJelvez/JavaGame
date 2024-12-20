@@ -18,7 +18,9 @@ public final class Display {
     private static Controllable player;
     private static HashMap<String,AbstractTile> buffer=new HashMap<>();
     private static HashMap<String, AbstractTile> tiles =new HashMap<>();
+    private static ArrayList<AbstractTile> deletedTiles = new ArrayList<>();
     private static boolean bufferChanged;
+    private static boolean tilesChanged;
     private static int screenHeight;
     private static int windowsBarHeight;
 
@@ -67,20 +69,25 @@ public final class Display {
         bufferChanged=true;
     }
 
-    public static void refresh(){
-        if(checkScreenHeightChanged()){
+     public static void refresh() {
+        if (checkScreenHeightChanged()) {
             adaptSize();
             adaptPosition();
         }
         //adds elements which were waiting in the buffer
-        if (bufferChanged){
+        if (bufferChanged) {
             buffer.entrySet().stream()
-                    .filter((e)->!tiles.containsKey(e.getKey())).forEach((e)->{
-                        tiles.put(e.getKey(),e.getValue());
+                    .filter((e) -> !tiles.containsKey(e.getKey())).forEach((e) -> {
+                        tiles.put(e.getKey(), e.getValue());
                         e.getValue().setVisible(true);
-                        panel.add(e.getValue().getLabel());
+                        panel.add(e.getValue().getLabel(), Integer.valueOf(e.getValue().getLayer()));
                     });
             buffer.clear();
+        }
+        if (tilesChanged){
+            deletedTiles.stream().forEach((e) -> panel.remove(e.getLabel()));
+            deletedTiles.clear();
+            tilesChanged = false;
         }
         //updates the layer in which the tile is displayed
         tiles.values().stream()
@@ -130,4 +137,13 @@ public final class Display {
     public static void adaptPosition(){
         tiles.values().forEach(AbstractTile::adaptPosition);
     }
+	
+	public static void removeTile(String id ){
+        if (tiles.containsKey(id)){
+            deletedTiles.add(tiles.get(id));
+            tiles.remove(id);
+            tilesChanged = true;
+        }
+    }
+	
 }
