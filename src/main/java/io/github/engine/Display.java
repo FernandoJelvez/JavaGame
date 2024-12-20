@@ -127,7 +127,7 @@ public final class Display {
      * @return an integer with the value of a unit measured in pixels
      */
     public static float getUnitValue(){
-		return (float) frame.getHeight() / 60;
+		return (float) panel.getHeight() / 60;
     }
     public static boolean checkScreenHeightChanged(){
         return !(frame.getHeight()==screenHeight);
