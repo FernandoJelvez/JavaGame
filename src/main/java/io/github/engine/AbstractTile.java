@@ -92,8 +92,15 @@ public abstract class AbstractTile {
 		label.setBackground(new Color(r,g,b));
 	}
 
-	protected void adaptSize(){
+	protected void adaptSize(){ //Se "repite"
 		setSize(unitWidth,unitHeight);
+		try {
+			this.texturaEscalada = new Texture(this.texturaOriginal.getImageIcon());
+			this.texturaEscalada.escalarImagen((int) unitWidth * Display.getUnitValue(), (int) unitHeight * Display.getUnitValue());
+			this.label.setIcon(texturaEscalada.getImageIcon());
+		} catch (Exception err){
+
+		}
 	}
 	protected abstract void refresh();
 
