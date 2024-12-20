@@ -1,4 +1,4 @@
-package io.github.levelMaker;
+/*package io.github.levelMaker;
 
 import com.google.gson.Gson;
 import io.github.engine.AbstractTile;
@@ -33,7 +33,7 @@ public class levelMaker {
 
     static {
         try {
-            imagenCompleta = ImageIO.read(new File("C:\\Users\\Tomas\\Downloads\\JavaGame-main\\JavaGame-main\\src\\main\\presets\\imagenTesteo1.png"));
+            imagenCompleta = ImageIO.read(new File("C:\\Users\\Tomas\\Downloads\\JavaGame-main\\JavaGame-main\\src\\main\\presets\\texturas.png"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -293,7 +293,7 @@ public class levelMaker {
     public static JLabel crearIndicador(boolean isNormal) throws IOException {
         JLabel indicador = crearJLabel(20, 20);
         indicador.setLocation(0, 100);
-        File imagen_Completa = new File("C:\\Users\\Tomas\\Downloads\\JavaGame-main\\JavaGame-main\\src\\main\\presets\\imagenTesteo1.png");
+        File imagen_Completa = new File("C:\\Users\\Tomas\\Downloads\\JavaGame-main\\JavaGame-main\\src\\main\\presets\\texturas.png");
         if (isNormal) {
             indicador.setIcon(new ImageIcon(ImageIO.read(imagen_Completa).getSubimage(0, 0, 20, 20)));
         } else {
@@ -337,4 +337,4 @@ public class levelMaker {
     public static void guardarMapa(){
         Gson hola = new Gson();
     }
-}
+}*/
