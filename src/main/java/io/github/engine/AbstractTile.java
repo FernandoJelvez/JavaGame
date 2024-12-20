@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.Color;
 
 public abstract class AbstractTile {
+	private Texture texturaEscalada;
+	private Texture texturaOriginal;
 	private final JLabel label = new JLabel();
 	private boolean solid;
 	private int layer;
@@ -78,6 +80,12 @@ public abstract class AbstractTile {
 	 */
 	public float getUnitY(){
 		return unitY;
+	}
+
+	public void setTexture(Texture texture){
+	this.texturaOriginal = texture;
+	this.label.setIcon(this.texturaOriginal.getImageIcon());
+	adaptSize();
 	}
 
 	public void setColor(int r,int g,int b){
