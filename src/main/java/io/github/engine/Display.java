@@ -108,9 +108,12 @@ public final class Display {
         bufferChanged=false;
     }
 
-    public static double getHeight(){
-        return frame.getSize().getHeight();
+	public static double getHeight(){
+        return frame.getSize().getHeight() / getUnitValue();
     }
+	
+    public static double getWidth() { return frame.getSize().getWidth() / getUnitValue() ;}
+	
     public static HashMap<String,AbstractTile> retrieveTiles(){
         return tiles;
     }
