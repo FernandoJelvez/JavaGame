@@ -3,7 +3,7 @@ package io.github.levelMaker;
 import io.github.engine.Display;
 import io.github.engine.DisplayRefresh;
 import io.github.engine.Texture;
-import io.github.game.Player;
+import io.github.engine.Player;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
