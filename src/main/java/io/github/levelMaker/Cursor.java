@@ -4,7 +4,7 @@ import io.github.engine.AbstractTile;
 import io.github.engine.ButtonNames;
 import io.github.engine.Display;
 import io.github.engine.Texture;
-import io.github.game.Player;
+import io.github.engine.Player;
 import io.github.game.Tile;
 
 import javax.imageio.ImageIO;
