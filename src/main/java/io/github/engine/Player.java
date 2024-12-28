@@ -1,4 +1,4 @@
-public abstract class Player extends Enemy implements Controllable, Collidable {
+public abstract class Player extends Entity implements Controllable, Collidable {
 	//jump force affects how much the player will jump, by multiplying the base jump speed
 	private int jumpForce=1;
 	public static final int jumpConstant=(-3);
