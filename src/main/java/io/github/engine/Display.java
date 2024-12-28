@@ -59,6 +59,9 @@ public final class Display {
     public static void setScenarioSize(int width,int height){
         panel.setSize(width,height);
     }
+    public static void setControl(Control control){
+        frame.addKeyListener(control);
+    }
 
 
     /**
