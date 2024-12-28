@@ -1,3 +1,4 @@
+package io.github.engine;
 public abstract class Player extends Entity implements Controllable, Collidable {
 	//jump force affects how much the player will jump, by multiplying the base jump speed
 	private int jumpForce=1;
