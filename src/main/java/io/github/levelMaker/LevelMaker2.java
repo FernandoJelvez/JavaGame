@@ -20,7 +20,7 @@ public class LevelMaker2 {
 
         Cursor cursor = new Cursor(0,0,4,4,false,-2);
         cursor.setTexture(new Texture("C:\\Users\\Tomas\\OneDrive\\Desktop\\codigoEnTeoriaFinal\\JavaGame-main\\src\\main\\java\\io\\github\\presets\\img.png"));
-        Display.setPlayer(cursor);
+        Display.setControl(new Control(cursor));
 
         //Tile fondoTextura = new Tile((int) Display.getWidth(), (int) Display.getHeight(), false,-1);
         //fondoTextura.setTexture(new Texture("C:\\Users\\Tomas\\OneDrive\\Desktop\\codigoEnTeoriaFinal\\JavaGame-main\\src\\main\\java\\io\\github\\presets\\FondoCreadorDeNivelesNuevo.png"));
