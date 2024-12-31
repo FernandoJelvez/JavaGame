@@ -35,6 +35,7 @@ public final class Display {
         panel = new JPanel();
         viewport=new JViewport();
         frame.setSize(width,height);
+		panel.setSize(width,height);
         Display.screenHeight = height;
         Display.screenWidth=width;
         Display.viewport.setPreferredSize(new Dimension(width,height));
@@ -161,14 +162,25 @@ public final class Display {
         tilesChanged=true;
     }
     private static void sendBufferToActiveTiles(){
+        boolean previouslyEmpty=activeTiles.isEmpty();
         buffer.entrySet().stream()
                 .filter((e)->!activeTiles.containsKey(e.getKey())).sorted(Comparator.comparingInt((e)->e.getValue().getLayer())).forEach((e)->{
                     activeTiles.put(e.getKey(),e.getValue());
                     e.getValue().setVisible(true);
                     panel.add(e.getValue().getLabel());
                 });
-        buffer.values().forEach((e)->panel.setComponentZOrder(e.getLabel(),e.getLayer()));
+        if(!previouslyEmpty) {
+            activeTiles.values().forEach((e) -> panel.setComponentZOrder(e.getLabel(), e.getLayer()));
+        }
         bufferChanged=false;
         buffer.clear();
+    }
+    private static void addTileToPanel(Map.Entry<String,AbstractTile> tile){
+        if(activeTiles.isEmpty()){
+            activeTiles.put(tile.getKey(),tile.getValue());
+        } else {
+            activeTiles.put(tile.getKey(),tile.getValue());
+            activeTiles.values().forEach((e)->panel.setComponentZOrder(e.getLabel(),e.getLayer()));
+        }
     }
 }
