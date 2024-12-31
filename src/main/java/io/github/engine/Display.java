@@ -12,8 +12,9 @@ import java.util.*;
  */
 public final class Display {
     private static JFrame frame;
-    private static JPanel panel;
+    public static JPanel panel; //cambiado private a public
     private static JViewport viewport;
+	private static Controllable player;
     private static HashMap<String,AbstractTile> buffer=new HashMap<>();
     private static HashMap<String, AbstractTile> activeTiles =new HashMap<>();
     private static ArrayList<AbstractTile> deletedTiles=new ArrayList<>();
@@ -43,6 +44,9 @@ public final class Display {
         frame.add(viewport);
     }
 
+	public static void setPlayer(Controllable player){
+        	Display.player = player;
+    	}
     /**
      * Starts the window, making it visible and setting some of the Display's inner JFrame configurations
      * that allow the objects to display correctly
