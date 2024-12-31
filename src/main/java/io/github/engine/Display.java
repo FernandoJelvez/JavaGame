@@ -60,6 +60,7 @@ public final class Display {
         Display.viewport.setLayout(null);
         windowsBarHeight=frame.getHeight()-panel.getHeight();
         Display.frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+	    frame.addKeyListener(new Control(player));
     }
     public static void setScenarioSize(int width,int height){
         panel.setSize(width,height);
