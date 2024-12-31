@@ -63,4 +63,7 @@ public class Control implements KeyListener{
 				break;
 		}
 	}
+	protected Controllable getControllable() {
+		return controllable;
+	}
 }
