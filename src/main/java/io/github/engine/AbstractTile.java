@@ -92,6 +92,10 @@ public abstract class AbstractTile {
 		label.setBackground(new Color(r,g,b));
 	}
 
+	public void setOpaque(boolean opaque){
+		label.setOpaque(opaque);
+	}
+
 	protected void adaptSize(){ //Se "repite"
 		setSize(unitWidth,unitHeight);
 		try {
