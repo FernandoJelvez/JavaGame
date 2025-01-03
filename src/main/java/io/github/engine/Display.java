@@ -43,7 +43,7 @@ public final class Display {
         viewport.setView(panel);
         frame.add(viewport);
     }
-
+    @Deprecated
 	public static void setPlayer(Controllable player){
         	Display.player = player;
     	}
@@ -60,7 +60,9 @@ public final class Display {
         Display.viewport.setLayout(null);
         windowsBarHeight=frame.getHeight()-panel.getHeight();
         Display.frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-	    frame.addKeyListener(new Control(player));
+	    if(frame.getKeyListeners().length==0){
+            frame.addKeyListener(new Control(player));
+        }
     }
     public static void setScenarioSize(int width,int height){
         panel.setSize(width,height);
@@ -98,7 +100,7 @@ public final class Display {
         activeTiles.values().stream()
                 .filter(AbstractTile::isLayerChanged).forEach(
                         (e)->{frame.setComponentZOrder(e.getLabel(),e.getLayer());
-                        e.setLayerChangedFalse();}
+                            e.setLayerChangedFalse();}
                 );
         //calls abstract refresh method in every tile
         activeTiles.values().forEach(AbstractTile::refresh);
@@ -116,6 +118,8 @@ public final class Display {
                 .filter(Player.class::isInstance).map((e)->(Player)e).findFirst().orElseThrow();
         if(player.getUnitX()>=(viewport.getWidth()/getUnitValue())/4) {
             viewport.setViewPosition(new Point((player.getLabel().getX() - (screenWidth / 4)), viewport.getY()));
+        } else {
+            viewport.setViewPosition(new Point(0, (int) viewport.getViewPosition().getY()));
         }
     }
 
@@ -136,7 +140,7 @@ public final class Display {
     }
 
     /**
-     * Calculates the value of a unit, which is the an amount of pixels used as measurement by the other classes as the
+     * Calculates the value of a unit, which is the amount of pixels used as measurement by the other classes as the
      * standard measurement unit
      * @return an integer with the value of a unit measured in pixels
      */
@@ -163,11 +167,13 @@ public final class Display {
         activeTiles.values().forEach(AbstractTile::adaptPosition);
     }
     public static void removeTile(String id){
+        deletedTiles.add(activeTiles.get(id));
         activeTiles.remove(id);
         tilesChanged=true;
     }
     private static void sendBufferToActiveTiles(){
         boolean previouslyEmpty=activeTiles.isEmpty();
+        System.out.println(previouslyEmpty);
         buffer.entrySet().stream()
                 .filter((e)->!activeTiles.containsKey(e.getKey())).sorted(Comparator.comparingInt((e)->e.getValue().getLayer())).forEach((e)->{
                     activeTiles.put(e.getKey(),e.getValue());
@@ -182,10 +188,12 @@ public final class Display {
         buffer.clear();
     }
     private static void zAlignTile(AbstractTile tile){
-        int maxLayer=activeTiles.values().stream().map(AbstractTile::getLayer).max(Integer::compareTo).orElseThrow();
+        int maxLayer=activeTiles.values().stream().map((e)->panel.getComponentZOrder(e.getLabel())).max(Integer::compareTo).orElse(0);
         System.out.println(maxLayer);
-        if(tile.getLayer()!=0) {
-            panel.setComponentZOrder(tile.getLabel(), tile.getLayer()-1);
+        if(tile.getLayer()!=0&&tile.getLayer()<maxLayer) {
+            panel.setComponentZOrder(tile.getLabel(), tile.getLayer());
+        } else if (tile.getLayer()>=maxLayer) {
+            panel.setComponentZOrder(tile.getLabel(),maxLayer);
         } else {
             panel.setComponentZOrder(tile.getLabel(),0);
         }
