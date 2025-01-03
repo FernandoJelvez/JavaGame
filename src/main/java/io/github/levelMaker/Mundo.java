@@ -20,7 +20,7 @@ public class Mundo {
     private static int idPantalla;
     public static int idBloque;
     public static boolean isSolid = true;
-    public static int layer = 0;
+    public static int layer = 1;
 
     private static HashMap<Integer, HashMap<Point, Tile>> pantallas = new HashMap<>();
     private static HashMap<Point, Tile> bloques = new HashMap<>();
@@ -59,7 +59,7 @@ public class Mundo {
     }
 
     public static ImageIcon asignarTexturaAlBloque(int idBloque) throws IOException {
-        idBloque = idBloque;
+        Mundo.idBloque = idBloque;
         BufferedImage imagenCompleta = ImageIO.read(new File("src/main/java/io/github/presets/texturas.png"));
         int x;
         int y = 0;
