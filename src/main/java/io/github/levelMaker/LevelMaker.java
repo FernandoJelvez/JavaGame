@@ -7,7 +7,7 @@ import io.github.engine.Texture;
 import javax.swing.*;
 import java.io.IOException;
 
-public class LevelMaker2 {
+public class LevelMaker {
 
     public static boolean isStarter = false;
     public static int idBloque = 2;
