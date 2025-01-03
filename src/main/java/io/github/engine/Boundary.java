@@ -52,10 +52,10 @@ public class Boundary {
 	}
 
 	public boolean intersects(Boundary boundary){
-		boolean thisVertically=(getMaxY()<boundary.getMaxY()&&getMaxY()>boundary.getMinY())||(getMinY()<boundary.getMaxY()&&getMinY()>boundary.getMinY());
-		boolean thisHorizontally=(getMaxX()<boundary.getMaxX()&&getMaxX()>boundary.getMinX())||(getMinX()<boundary.getMaxX()&&getMinX()>boundary.getMinX());
-		boolean boundaryVertically=(boundary.getMaxY()<getMaxY()&&boundary.getMaxY()>getMinY())||(boundary.getMinY()<getMaxY()&&boundary.getMinY()>getMinY());
-		boolean boundaryHorizontally=(boundary.getMaxX()<getMaxX()&&boundary.getMaxX()>getMinX())||(boundary.getMinX()<getMaxX()&&boundary.getMinX()>getMinX());
+		boolean thisVertically=(getMaxY()<=boundary.getMaxY()&&getMaxY()>=boundary.getMinY())||(getMinY()<=boundary.getMaxY()&&getMinY()>=boundary.getMinY());
+		boolean thisHorizontally=(getMaxX()<=boundary.getMaxX()&&getMaxX()>=boundary.getMinX())||(getMinX()<=boundary.getMaxX()&&getMinX()>=boundary.getMinX());
+		boolean boundaryVertically=(boundary.getMaxY()<=getMaxY()&&boundary.getMaxY()>=getMinY())||(boundary.getMinY()<=getMaxY()&&boundary.getMinY()>=getMinY());
+		boolean boundaryHorizontally=(boundary.getMaxX()<=getMaxX()&&boundary.getMaxX()>=getMinX())||(boundary.getMinX()<=getMaxX()&&boundary.getMinX()>=getMinX());
 		return (thisVertically&&thisHorizontally)||(boundaryHorizontally&&boundaryVertically);
 	}
 }
