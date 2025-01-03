@@ -39,7 +39,7 @@ public class Mundo {
         bloques.putIfAbsent(punto, new Tile((int) punto.getX(), (int) punto.getY(), 4, 4,isSolid , layer));
         bloques.get(punto).setOpaque(false);
         try {
-            bloques.get(punto).setTexture(new Texture(asignarTexturaAlBloque(LevelMaker2.idBloque)));
+            bloques.get(punto).setTexture(new Texture(asignarTexturaAlBloque(LevelMaker.idBloque)));
         } catch (Exception err){
 
         }
