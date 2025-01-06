@@ -30,4 +30,9 @@ public abstract class Player extends Entity implements Controllable, Collidable 
 	protected void setMovingRight(boolean movingRight) {
 		this.movingRight = movingRight;
 	}
+
+	@Override
+	public void update(AbstractTile tile) {
+		super.update(tile);
+	}
 }

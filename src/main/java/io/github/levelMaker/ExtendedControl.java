@@ -30,17 +30,14 @@ public class ExtendedControl extends Control {
                 case KeyEvent.VK_E:
                     controllable.pressExtended(NEXT_TILE);
                     break;
-                case KeyEvent.VK_R:
-                    controllable.pressExtended(PREVIOUS_SCREEN);
-                    break;
-                case KeyEvent.VK_T:
-                    controllable.pressExtended(NEXT_SCREEN);
-                    break;
                 case KeyEvent.VK_Y:
                     controllable.pressExtended(CHANGE_SOLID);
                     break;
                 case KeyEvent.VK_U:
                     controllable.pressExtended(CHANGE_LAYER);
+                    break;
+                case KeyEvent.VK_G:
+                    controllable.pressExtended(SAVE);
                     break;
             }
         }

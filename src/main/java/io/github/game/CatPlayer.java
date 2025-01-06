@@ -2,7 +2,7 @@ package io.github.game;
 
 import io.github.engine.AbstractTile;
 import io.github.engine.ButtonNames;
-import io.github.engine.DisplayRefresh;
+import io.github.engine.Synchronization;
 import io.github.engine.Player;
 
 import java.lang.management.MemoryUsage;
@@ -71,7 +71,7 @@ public class CatPlayer extends Player {
 	@Override
 	protected void refresh() {
 		if (timesJumped==1){
-			jumpCooldownTime+=DisplayRefresh.getDeltaTime();
+			jumpCooldownTime+=Synchronization.getDeltaTime();
 		}
 		if(timesJumped>0&&isBottomLocked()){
 			jumpCooldownTime=0;
@@ -82,7 +82,6 @@ public class CatPlayer extends Player {
 		} else {
 			setxAcceleration(0);
 		}
-		System.out.println(isBottomLocked());
 	}
 	public void decelerate(){
 		if(getXSpeed()<=0&&isMovingRight()&&!beingControlled){

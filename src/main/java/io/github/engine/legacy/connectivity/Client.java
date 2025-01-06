@@ -1,11 +1,7 @@
-package io.github.engine.connectivity;
-
-import io.github.engine.connectivity.exceptions.ConnectionInterruptedException;
-import io.github.engine.connectivity.exceptions.WrongProtocolException;
+package io.github.engine.legacy.connectivity;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketException;
 import java.time.Instant;
 
 public class Client implements Connectable,Runnable{
@@ -37,17 +33,14 @@ public class Client implements Connectable,Runnable{
 	@Override
 	public void run() {
 		try {
-			serverOutput.writeObject(new Package("Handshake", Instant.now()));
-			while (true) {
-				Package p = protocol.processRequest(input);
-				serverOutput.writeObject(p);
+			serverOutput.writeObject(new Package("Handshake",Instant.now()));
+			while(true) {
+				serverOutput.writeObject(protocol.processRequest(input));
 			}
-		} catch (SocketException e) {
-			throw new ConnectionInterruptedException();
 		} catch (IOException e) {
-			throw new ConnectionInterruptedException();
+			throw new RuntimeException(e);
 		} catch (ClassNotFoundException e) {
-			throw new WrongProtocolException();
+			throw new RuntimeException(e);
 		}
 	}
 

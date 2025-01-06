@@ -1,10 +1,7 @@
-package io.github.engine.connectivity;
-
-import io.github.engine.connectivity.exceptions.WrongProtocolException;
+package io.github.engine.legacy.connectivity;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.net.SocketException;
 
 public interface Protocol {
 	/**
@@ -13,5 +10,5 @@ public interface Protocol {
 	 * @param input an {@code InputStream}
 	 * @return an {@code OutputStream}
 	 */
-	Package processRequest(ObjectInputStream input) throws IOException, ClassNotFoundException, WrongProtocolException;
+	Package processRequest(ObjectInputStream input) throws IOException, ClassNotFoundException;
 }

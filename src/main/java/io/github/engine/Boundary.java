@@ -1,8 +1,8 @@
 package io.github.engine;
 
-import java.awt.Rectangle;
+import java.io.Serializable;
 
-public class Boundary {
+public class Boundary implements Serializable {
 	private float unitY;
 	private float unitX;
 	private float unitWidth;

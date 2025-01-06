@@ -14,7 +14,7 @@ public class Physics {
 	 * @param entity The Entity which will be affected by the calculation of its trajectory
 	 */
 	public static void applyProjectileCinematic(Entity entity) {
-		double deltaTime = DisplayRefresh.getDeltaTime();
+		double deltaTime = Synchronization.getDeltaTime();
 		double gravity;
 		//define gravity to be used
 		if (entity.isUsingLocalGravity()) {
@@ -121,10 +121,10 @@ public class Physics {
 			if((((newDTime<deltaTime)&&(newDTime>0))||(deltaTime<0&&!(newDTime<0)))&&deltaB!=0){
 				deltaTime=newDTime;
 			} else {
-				deltaTime=DisplayRefresh.getDeltaTime();
+				deltaTime=Synchronization.getDeltaTime();
 			}
 		} else {
-			deltaTime=DisplayRefresh.getDeltaTime();
+			deltaTime=Synchronization.getDeltaTime();
 		}
 		return deltaTime;
 	}

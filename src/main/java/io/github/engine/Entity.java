@@ -92,4 +92,21 @@ public abstract class Entity extends AbstractTile{
 	public int getxAcceleration(){
 		return xAcceleration;
 	}
+
+	@Override
+	public void update(AbstractTile tile) {
+		super.update(tile);
+		if(tile instanceof Entity){
+			Entity entity=(Entity)tile;
+			bottomLocked=entity.isBottomLocked();
+			topLocked=entity.isTopLocked();
+			rightLocked=entity.isRightLocked();
+			leftLocked=entity.isLeftLocked();
+			xSpeed=entity.getXSpeed();
+			ySpeed=entity.getYSpeed();
+			xAcceleration=entity.xAcceleration;
+			gravity=entity.getGravity();
+			usingLocalGravity=entity.usingLocalGravity;
+		}
+	}
 }

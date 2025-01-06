@@ -1,19 +1,17 @@
 package io.github.levelMaker;
 
-import io.github.engine.Control;
+import com.google.gson.Gson;
+import io.github.engine.AbstractTile;
 import io.github.engine.Display;
 import io.github.engine.Texture;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public class Mundo {
 
@@ -21,11 +19,8 @@ public class Mundo {
     public static int idBloque;
     public static boolean isSolid = true;
     public static int layer = 1;
-
-    private static HashMap<Integer, HashMap<Point, Tile>> pantallas = new HashMap<>();
-    private static HashMap<Point, Tile> bloques = new HashMap<>();
-    public static  HashMap<Integer, ArrayList<String>> puntosEnCadaPantalla = new HashMap<>();
-    private static ArrayList<String> puntosEnPantalla = new ArrayList<>();
+    private static final HashMap<Point, Tile> bloques = new HashMap<>();
+    private static final ArrayList<String> puntosEnPantalla = new ArrayList<>();
 
     Mundo(){
     }
@@ -39,13 +34,11 @@ public class Mundo {
         bloques.putIfAbsent(punto, new Tile((int) punto.getX(), (int) punto.getY(), 4, 4,isSolid , layer));
         bloques.get(punto).setOpaque(false);
         try {
-            bloques.get(punto).setTexture(new Texture(asignarTexturaAlBloque(LevelMaker.idBloque)));
+            bloques.get(punto).setTexture((asignarTexturaAlBloque(LevelMaker.idBloque)));
         } catch (Exception err){
 
         }
-        puntosEnPantalla.add("bloque" + ": (" + punto.x + "," + punto.y  + ")");
-        puntosEnCadaPantalla.put(idPantalla,puntosEnPantalla);
-        Display.addToBuffer(bloques.get(punto), "bloque" + ": (" + punto.x + "," + punto.y  + ")");
+        Display.addToBuffer("bloque" + ": (" + punto.x + "," + punto.y  + ")", bloques.get(punto));
     }
 
     public static void borrarBloque(Point punto){
@@ -58,55 +51,25 @@ public class Mundo {
         }
     }
 
-    public static ImageIcon asignarTexturaAlBloque(int idBloque) throws IOException {
+    public static Texture asignarTexturaAlBloque(int idBloque) throws IOException {
         Mundo.idBloque = idBloque;
-        BufferedImage imagenCompleta = ImageIO.read(new File("src/main/java/io/github/presets/texturas.png"));
-        int x;
-        int y = 0;
-        if (idBloque < 10) {
-            x = idBloque * 20;
-        } else {
-            x = (idBloque % 10) * 20;
-            y = ((idBloque - (idBloque % 10)) / 10) * 20;
-        }
-        return new ImageIcon(imagenCompleta.getSubimage(x, y, 20, 20));
+        System.out.println("id: "+idBloque);
+        return (Display.getTextures().get(idBloque));
     }
 
-    public static void setIdPantalla(int idPantalla) {
-        Mundo.idPantalla = idPantalla;
-    }
+    public static void GuardarMundo(){
+        ArrayList<AbstractTile> bloquesParaGuardar = new ArrayList<>();
+		bloquesParaGuardar.addAll(bloques.values());
+        Gson json = new Gson();
+        String jsonString = json.toJson(bloquesParaGuardar);
 
-    public static int getIdPantalla() {
-        return idPantalla;
-    }
-
-    public static void cambioDePantalla(int caso) {
-        if (bloques != null) {
-            pantallas.put(idPantalla,new HashMap<>(new HashMap<>(bloques)));
-            bloques.clear();
-        } else {
-            pantallas.put(idPantalla,new HashMap<>());
+        File file = new File("nivel.json");
+        try (FileWriter writer = new FileWriter(file)) {
+            System.out.println("Guardando en: " + file.getAbsolutePath());
+            writer.write(jsonString);
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e);
         }
-        puntosEnPantalla.forEach(Display::removeTile);
-        if (caso == KeyEvent.VK_R){
-            idPantalla--;
-        } else {
-            idPantalla++;
-        }
-        bloques = pantallas.get(idPantalla);
-        try {
-            bloques.forEach((punto, tile) -> {
-                Display.addToBuffer(tile, "bloque" + ": (" + punto.x + "," + punto.y + ")");
-            });
-        } catch (NullPointerException e){
-            System.out.println("Se ha pasado un error: " + e);
-        }
-
-        System.out.println("ID: " + idPantalla);
-    }
-
-    public static HashMap<Integer, HashMap<Point, Tile>> getPantallas() {
-        return pantallas;
     }
 
 

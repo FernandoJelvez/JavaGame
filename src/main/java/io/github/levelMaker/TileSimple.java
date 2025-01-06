@@ -1,7 +1,5 @@
 package io.github.levelMaker;
-
 public class TileSimple {
-
     private int unitX;
     private int unitY;
     private float width;

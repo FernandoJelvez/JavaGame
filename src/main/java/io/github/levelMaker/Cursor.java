@@ -1,22 +1,10 @@
 package io.github.levelMaker;
 
-import io.github.engine.AbstractTile;
-import io.github.engine.ButtonNames;
-import io.github.engine.Display;
-import io.github.engine.Texture;
-import io.github.engine.Player;
-import io.github.game.Tile;
+import io.github.engine.*;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-
-import static io.github.gameMakerTool.PlaceArgumentKeywords.tile;
 
 public class Cursor extends Player implements ExtendedControlInterface{
 
@@ -54,9 +42,7 @@ public class Cursor extends Player implements ExtendedControlInterface{
     public void press(ButtonNames name) {
         switch(name){
             case RIGHT:
-                if (getUnitX() < 74){
-                    setLocation(getUnitX() + 4, getUnitY());
-                }
+                setLocation(getUnitX() + 4, getUnitY());
                 break;
             case LEFT:
                 if (getUnitX() > 0){
@@ -94,27 +80,52 @@ public class Cursor extends Player implements ExtendedControlInterface{
 
     @Override
     public void release(ButtonNames name) {
-
     }
 
     @Override
     public void pressExtended(ExtendedControlNames name) {
         switch (name){
-            case chunkIzquierda:
-                System.out.println("izq");
-                if (Mundo.getIdPantalla() > 0){
-                    Mundo.setIdPantalla(Mundo.getIdPantalla()-1);
+            case ExtendedControlNames.PREVIOUS_TILE:
+                if(LevelMaker.isStarter && LevelMaker.idBloque > 2){
+                    LevelMaker.idBloque--;
                 }
                 break;
-            case chunkDerecha:
-                System.out.println("der");
-                if (Mundo.getIdPantalla() < 10){
-                    Mundo.setIdPantalla(Mundo.getIdPantalla()+10); //MAXIMO 10 CHUNKS
+            case ExtendedControlNames.NEXT_TILE:
+                if (LevelMaker.isStarter && LevelMaker.idBloque < Display.getTextures().size()-1){
+                    LevelMaker.idBloque++;
                 }
                 break;
-            case QUINTIARY:
+            case ExtendedControlNames.CHANGE_SOLID:
+                if (LevelMaker.isStarter){
+                    try {
+                        //BLANCO = NO SOLIDO, ROJO = SOLIDO
+                        if (Mundo.isSolid){
+                            Mundo.isSolid = false;
+                            LevelMaker.cursor.setTexture((Mundo.asignarTexturaAlBloque(0)));
+                            //AHORA NO ES SOLIDO
+                        } else {
+                            Mundo.isSolid = true;
+                            LevelMaker.cursor.setTexture((Mundo.asignarTexturaAlBloque(1)));
+                            //AHORA ES SOLIDO
+                        }
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
                 break;
-            case SIXTIARY:
+            case ExtendedControlNames.CHANGE_LAYER:
+                if (LevelMaker.isStarter){
+                    if (Mundo.layer < 3){
+                        Mundo.layer++;
+                        LevelMaker.label.setText("L=" + Mundo.layer);
+                    } else {
+                        Mundo.layer = 1;
+                        LevelMaker.label.setText("L=" + 1);
+                    }
+                }
+                break;
+            case ExtendedControlNames.SAVE:
+                Mundo.GuardarMundo();
                 break;
         }
     }

@@ -7,44 +7,52 @@ import java.awt.image.BufferedImage;
 public class Texture implements Cloneable{
 
 	private ImageIcon imageIcon;
+	private ImageIcon scaledImageIcon;
+	private String id;
 
-	public Texture(String path) {
+	public Texture(String path, String id) {
 		imageIcon = new ImageIcon(path);
-	}
-
-	public Texture() {
+		scaledImageIcon= new ImageIcon(path);
+		this.id=id;
 	}
 
 	public Texture(ImageIcon imageIcon) {
 		this.imageIcon = imageIcon;
+		this.scaledImageIcon=new ImageIcon(imageIcon.getImage());
 	}
 
-	public void escalarImagen(float width, float height){
-		this.imageIcon.setImage(imageIcon.getImage().getScaledInstance((int) width, (int) height, Image.SCALE_FAST));
-
+	public Texture(ImageIcon imageIcon, String id) {
+		this.imageIcon = imageIcon;
+		this.scaledImageIcon=new ImageIcon(imageIcon.getImage());
+		this.id=id;
 	}
 
-	protected ImageIcon getImageIcon() {
-		Image imagenCopia = this.imageIcon.getImage();
-		BufferedImage bufferedImage = new BufferedImage(imagenCopia.getWidth(null),imagenCopia.getHeight(null),BufferedImage.TYPE_INT_ARGB);
-		ImageIcon imagenSuelta = new ImageIcon(bufferedImage);
-		Graphics2D g2d = bufferedImage.createGraphics();
-		g2d.drawImage(imagenCopia,0,0,null);
-		g2d.dispose();
+	public void adaptSize(int width,int height){
+		try {
+			this.scaledImageIcon.setImage(imageIcon.getImage().getScaledInstance(width,height, Image.SCALE_FAST));
+		} catch (Exception err){
 
-		return imagenSuelta;
+		}
 	}
-
 
     @Override
     public Texture clone() {
         try {
             Texture clone = (Texture) super.clone();
 			clone.imageIcon = new ImageIcon(imageIcon.getImage());
+			clone.id=id;
 			// TODO: copy mutable state here, so the clone can't change the internals of the original
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
     }
+
+	public ImageIcon getScaledImageIcon() {
+		return  scaledImageIcon;
+	}
+
+	public String getId() {
+		return id;
+	}
 }
